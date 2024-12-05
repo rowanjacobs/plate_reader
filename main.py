@@ -1,6 +1,7 @@
 import csv
 
 import absorbance
+import apply_statistics
 import read_tsv
 import trim_plate_reader_output
 
@@ -19,24 +20,18 @@ def process_file(input_file, output_file, stats_file=None):
     with open(input_file, 'r') as infile:
         lines = infile.readlines()
 
-    data_lines, statistics_lines = trim_plate_reader_output.trim_plate_reader_output(lines)
+    data_lines, _ = trim_plate_reader_output.trim_plate_reader_output(lines)
     data = read_tsv.read_data(data_lines)
-    statistics = read_tsv.read_data(statistics_lines)
     concentration_data = absorbance.concentration_of_array(data)
+    data_cluster_means = apply_statistics.mean_concentrations(concentration_data)
+    data_cluster_stdevs = apply_statistics.stdev_concentrations(concentration_data)
 
     with open(output_file, 'w', newline='') as outfile:
         writer = csv.writer(outfile)
 
-        # Write each sub-array as a row in the CSV
-        writer.writerows(concentration_data)
-
-    if stats_file:
-        with open(stats_file, 'w') as outfile:
-            writer = csv.writer(outfile)
-
-            # Write each key and its associated float array as a row
-            for key, values in statistics.items():
-                writer.writerow([key] + values)  # Combines the key with its associated array
+        writer.writerow(["Mean concentration", "Stdev"])
+        for row in zip(data_cluster_means, data_cluster_stdevs):
+            writer.writerow(row)
 
 
 def main():
@@ -46,8 +41,6 @@ def main():
     # Define the arguments
     parser.add_argument('input', type=str, help="The input file to be processed")
     parser.add_argument('output', type=str, help="The location to write the processed absorbance data")
-    parser.add_argument('--stats', type=str,
-                        help="Optional statistics file to write statistics from plate reader data file.")
 
     # Parse the arguments
     args = parser.parse_args()
