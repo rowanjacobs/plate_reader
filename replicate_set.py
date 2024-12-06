@@ -1,6 +1,14 @@
 import dataclasses
+import statistics
 
+import apply_statistics
 import read_tsv
+
+# ε₃₄₀(NADH) = 6220 M⁻¹cm⁻¹
+# A = εlc
+
+path_length = 0.195565054
+extinction = 6220
 
 
 @dataclasses.dataclass
@@ -12,6 +20,19 @@ class ReplicateSet:
     def join(self, rs):
         # assume that time is the same. TODO probably throw an error if it isn't
         return ReplicateSet(time=self.time, data_points=self.data_points + rs.data_points, well=self.well + rs.well)
+
+    def concentrations(self):
+        return [x / (path_length * extinction) for x in self.data_points]
+
+    def _concentrations_without_outliers(self):
+        concs = self.concentrations()
+        outlier, _ = apply_statistics.grubbs_test(concs)
+        if outlier > -1:
+            del concs[outlier]
+        return concs
+
+    def mean_concentration(self):
+        return statistics.mean(self._concentrations_without_outliers())
 
 
 @dataclasses.dataclass

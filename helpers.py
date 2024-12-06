@@ -99,7 +99,14 @@ mock_statistics = {
 }
 
 
-def assert_almost_equal(test_case, array1, array2, rel_tol=1e-9, abs_tol=0.0, level=0):
+def assert_almost_equal(test_case, x, y, rel_tol=1e-9, abs_tol=0.0):
+    if not math.isclose(x, y, rel_tol=rel_tol, abs_tol=abs_tol):
+        test_case.fail(
+            f"{x} != {y} within tolerance (rel_tol={rel_tol}, abs_tol={abs_tol})"
+        )
+
+
+def assert_arrays_almost_equal(test_case, array1, array2, rel_tol=1e-9, abs_tol=0.0, level=0):
     """
     Generalized matcher to assert that two arrays are approximately equal (supports nested arrays).
 
@@ -122,7 +129,7 @@ def assert_almost_equal(test_case, array1, array2, rel_tol=1e-9, abs_tol=0.0, le
     for i, (x, y) in enumerate(zip(array1, array2)):
         if isinstance(x, (list, tuple)) and isinstance(y, (list, tuple)):
             # Recursively compare subarrays
-            assert_almost_equal(test_case, x, y, rel_tol, abs_tol, level + 1)
+            assert_arrays_almost_equal(test_case, x, y, rel_tol, abs_tol, level + 1)
         else:
             # Compare floats using math.isclose for each element
             if not math.isclose(x, y, rel_tol=rel_tol, abs_tol=abs_tol):
@@ -134,18 +141,12 @@ def assert_almost_equal(test_case, array1, array2, rel_tol=1e-9, abs_tol=0.0, le
 
 # Specific matchers that use the generalized matcher
 
-def assert_arrays_almost_equal(test_case, array1, array2, rel_tol=1e-9, abs_tol=0.0):
-    """
-    Assert that two flat arrays (1D lists) are approximately equal.
-    """
-    assert_almost_equal(test_case, array1, array2, rel_tol, abs_tol)
-
 
 def assert_arrays_of_arrays_almost_equal(test_case, array1, array2, rel_tol=1e-9, abs_tol=0.0):
     """
     Assert that two arrays of arrays (2D lists) are approximately equal.
     """
-    assert_almost_equal(test_case, array1, array2, rel_tol, abs_tol)
+    assert_arrays_almost_equal(test_case, array1, array2, rel_tol, abs_tol)
 
 
 def assert_replicate_sets_almost_equal(test_case, rs1: ReplicateSet, rs2: ReplicateSet, rel_tol=1e-9, abs_tol=0.0):
