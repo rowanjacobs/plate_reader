@@ -1,4 +1,7 @@
 import math
+import unittest
+
+from replicate_set import ReplicateSet, ReplicateSetTimeline
 
 mock_pr_output = """
 
@@ -34,9 +37,9 @@ End Kinetic
 
 340
 
-Time	T∞ 340	A1	A2	A3	A4
-0:00:00	25.0	1.691	1.736	1.787	1.837
-0:00:12	25.0    2.069	2.065	1.907	1.480
+Time	T∞ 340	A1	A2	A3	A4	B1	B2	B3	B4
+0:00:00	25.0	1.691	1.736	1.787	1.837	2.069	2.065	1.907	1.480
+0:00:12	25.0    1.791	1.836	1.887	1.937	2.169	2.165	2.007	1.580
 
 Results
 	1	2	3	4
@@ -46,29 +49,40 @@ C	29.500	-5.650	-54.400	-42.350	Max V [340]
 	?????	0:30:17	?????	0:00:44	Lagtime [340]
 """
 
-mock_data_lines = """Time	T∞ 340	A1	A2	A3	A4
-0:00:00	25.0	1.691	1.736	1.787	1.837
-0:00:12	25.0    2.069	2.065	1.907	1.480
+mock_data_lines = """Time	T∞ 340	A1	A2	A3	A4	B1	B2	B3	B4
+0:00:00	25.0	1.691	1.736	1.787	1.837	2.069	2.065	1.907	1.480
+0:00:12	25.0    1.791	1.836	1.887	1.937	2.169	2.165	2.007	1.580
 """
 
-# the last element in the last array is an outlier
+# the last element in the first array is an outlier
 mock_data = [
-    [1.691, 1.736, 1.787, 1.837],
-    [2.069, 2.065, 1.907, 1.480]
+    [1.691, 1.736, 1.787, 1.837, 2.069, 2.065, 1.907, 1.480],
+    [1.791, 1.836, 1.887, 1.937, 2.169, 2.165, 2.007, 1.580],
+]
+
+mock_data_replicate_sets = [
+    ReplicateSetTimeline('A1A2B1B2', [
+        ReplicateSet(time=0, well='A1A2B1B2', data_points=[1.691, 1.736, 2.069, 2.065]),
+        ReplicateSet(time=12, well='A1A2B1B2', data_points=[1.791, 1.836, 2.169, 2.165])
+    ]),
+    ReplicateSetTimeline('A3A4B3B4', [
+        ReplicateSet(time=0, well='A3A4B3B4', data_points=[1.787, 1.837, 1.907, 1.480]),
+        ReplicateSet(time=12, well='A3A4B3B4', data_points=[1.887, 1.937, 2.007, 1.580])
+    ])
 ]
 
 mock_data_concentration = [
     [1.691 / (0.195565054 * 6220), 1.736 / (0.195565054 * 6220), 1.787 / (0.195565054 * 6220),
-     1.837 / (0.195565054 * 6220)],
-    [2.069 / (0.195565054 * 6220), 2.065 / (0.195565054 * 6220), 1.907 / (0.195565054 * 6220),
-     1.480 / (0.195565054 * 6220)]
+     1.837 / (0.195565054 * 6220), 2.069 / (0.195565054 * 6220), 2.065 / (0.195565054 * 6220),
+     1.907 / (0.195565054 * 6220), 1.480 / (0.195565054 * 6220)],
+    [1.791 / (0.195565054 * 6220), 1.836 / (0.195565054 * 6220), 1.887 / (0.195565054 * 6220),
+     1.937 / (0.195565054 * 6220), 2.169 / (0.195565054 * 6220), 2.165 / (0.195565054 * 6220),
+     2.007 / (0.195565054 * 6220), 1.580 / (0.195565054 * 6220)]
 ]
 
-mock_concentration_means = [0.0015539520359622461, 0.0015156564318489058]
+mock_concentration_means = [0.0014497523689561808, 0.0015512802496287573, 0.0017403605132295065, 0.0014333106069039417]
 
-mock_concentration_stdevs = [0.0001684663931449787, 4.9553117790144295e-05]
-
-mock_concentration_grubbs_max = [0.8723, 0.8188]
+mock_concentration_stdevs = [5.204754846191094e-05, 4.110440513059772e-05, 4.750123418093657e-05, 0.000208151776831809]
 
 mock_statistics_lines = """	1	2	3	4
 C	29.500	-5.650	-54.400	-42.350	Max V [340]
@@ -132,6 +146,25 @@ def assert_arrays_of_arrays_almost_equal(test_case, array1, array2, rel_tol=1e-9
     Assert that two arrays of arrays (2D lists) are approximately equal.
     """
     assert_almost_equal(test_case, array1, array2, rel_tol, abs_tol)
+
+
+def assert_replicate_sets_almost_equal(test_case, rs1: ReplicateSet, rs2: ReplicateSet, rel_tol=1e-9, abs_tol=0.0):
+    """
+    Assert that two ReplicateSets are approximately equal.
+    """
+    test_case.assertEqual(rs1.time, rs2.time)
+    test_case.assertEqual(rs1.well, rs2.well)
+    assert_arrays_almost_equal(test_case, rs1.data_points, rs2.data_points)
+
+
+def assert_replicate_set_timelines_almost_equal(test_case: unittest.TestCase, rstl1: ReplicateSetTimeline,
+                                                rstl2: ReplicateSetTimeline, rel_tol=1e-9, abs_tol=0.0):
+    """
+    Assert that two ReplicateSetTimelines are approximately equal.
+    """
+    test_case.assertEqual(rstl1.well, rstl2.well)
+    for i, rs in enumerate(rstl1.replicate_sets):
+        assert_replicate_sets_almost_equal(test_case, rs, rstl2.replicate_sets[i])
 
 
 def assert_dicts_with_float_arrays_almost_equal(test_case, dict1, dict2, rel_tol=1e-9, abs_tol=0.0):

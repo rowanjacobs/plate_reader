@@ -29,6 +29,7 @@ def process_file(input_file, output_file, stats_file=None):
     with open(output_file, 'w', newline='') as outfile:
         writer = csv.writer(outfile)
 
+        # TODO: include time and well group
         writer.writerow(["Mean concentration", "Stdev"])
         for row in zip(data_cluster_means, data_cluster_stdevs):
             writer.writerow(row)
