@@ -3,12 +3,13 @@ import csv
 import absorbance
 import apply_statistics
 import read_tsv
+import replicate_set
 import trim_plate_reader_output
 
 import argparse
 
 
-def process_file(input_file, output_file, stats_file=None):
+def process_file(input_file, output_file, single_line=False):
     # Process:
     # 1. read plate reader file
     # 2. trim non-data lines, saving off statistical lines
@@ -17,21 +18,24 @@ def process_file(input_file, output_file, stats_file=None):
     # 5. apply Beer's law
     # 6. write output to file(s)
 
-    with open(input_file, 'r') as infile:
+    with open(input_file, 'r', encoding='iso-8859-1') as infile:
         lines = infile.readlines()
 
     data_lines, _ = trim_plate_reader_output.trim_plate_reader_output(lines)
-    data = read_tsv.read_data(data_lines)
-    concentration_data = absorbance.concentration_of_array(data)
-    data_cluster_means = apply_statistics.mean_concentrations(concentration_data)
-    data_cluster_stdevs = apply_statistics.stdev_concentrations(concentration_data)
+    if single_line:
+        data = replicate_set.data_into_replicate_set_timelines_single_line(data_lines)
+    else:
+        data = replicate_set.data_into_replicate_set_timelines(data_lines)
+    data_rows = ([rs.time, rs.well, rs.mean_concentration(), rs.stdev_concentration()] for rstl in data for rs in
+                 rstl.replicate_sets)
 
     with open(output_file, 'w', newline='') as outfile:
         writer = csv.writer(outfile)
 
         # TODO: include time and well group
-        writer.writerow(["Mean concentration", "Stdev"])
-        for row in zip(data_cluster_means, data_cluster_stdevs):
+        writer.writerow(["Time", "Wells", "Mean Concentration", "Stdev Concentration"])
+        for row in data_rows:
+            print(row)
             writer.writerow(row)
 
 
@@ -42,12 +46,14 @@ def main():
     # Define the arguments
     parser.add_argument('input', type=str, help="The input file to be processed")
     parser.add_argument('output', type=str, help="The location to write the processed absorbance data")
+    parser.add_argument('--single-line', action='store_true',
+                        help="Set this flag to disable grouping wells into replicate sets.")
 
     # Parse the arguments
     args = parser.parse_args()
 
     # Call the processing function with the input and output file paths
-    process_file(args.input, args.output, args.stats)
+    process_file(args.input, args.output, args.single_line)
 
 
 if __name__ == '__main__':
