@@ -130,18 +130,35 @@ def group_and_join_replicate_sets(data):
 
     return result
 
-# mock_data_lines = """Time	T∞ 340	A1	A2	A3	A4	B1	B2	B3	B4
-# 0:00:00	25.0	1.691	1.736	1.787	1.837	2.069	2.065	1.907	1.480
-# 0:00:12	25.0    1.791	1.836	1.887	1.937	2.169	2.165	2.007	1.580
-# """
-#
-# mock_data_replicate_sets = [
-#     ReplicateSetTimeline('A1A2B1B2', [
-#         ReplicateSet(time=0, well='A1A2B1B2', data_points=[1.691, 1.736, 2.069, 2.065]),
-#         ReplicateSet(time=12, well='A1A2B1B2', data_points=[1.791, 1.836, 2.169, 2.165])
-#     ]),
-#     ReplicateSetTimeline('A3A4B3B4', [
-#         ReplicateSet(time=0, well='A3A4B3B4', data_points=[1.787, 1.837, 1.907, 1.480]),
-#         ReplicateSet(time=12, well='A3A4B3B4', data_points=[1.887, 1.937, 2.007, 1.580])
-#     ])
-# ]
+
+def generate_timeline_table(rstls):
+    # Extract all unique times and wells maintaining original order
+    times = sorted(set(rs.time for rstl in rstls for rs in rstl.replicate_sets))
+    wells = []
+    seen_wells = set()
+    for rstl in rstls:
+        for rs in rstl.replicate_sets:
+            if rs.well not in seen_wells:
+                wells.append(rs.well)
+                seen_wells.add(rs.well)
+
+    # Initialize the table with column headers
+    table = [["Time"] + wells]
+
+    # Populate the rows
+    for time in times:
+        row = [time]
+        for well in wells:
+            # Find the corresponding ReplicateSet for the given time and well
+            concentration_values = None
+            for rstl in rstls:
+                for rs in rstl.replicate_sets:
+                    if rs.time == time and rs.well == well:
+                        concentration_values = rs.mean_concentration()
+                        break
+                if concentration_values:
+                    break
+            row.append(concentration_values if concentration_values else [])
+        table.append(row)
+
+    return table
