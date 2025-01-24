@@ -90,7 +90,8 @@ def data_into_replicate_set_timelines_single_line(data_lines):
         time = read_tsv.time_in_seconds(split[0])
         for i in range(first_well + 2, last_well + 3):
             try:
-                rs = ReplicateSet(time=time, data_points=[float(split[i])], well=wells[i - 2])
+                rs = ReplicateSet(time=time, data_points=[5.0 if split[i] == 'OVRFLW' else float(split[i])],
+                                  well=wells[i - 2])
                 replicate_set_timelines[i - (first_well + 2)].replicate_sets.append(rs)
             except ValueError:
                 print(f"Value error for well {wells[i - 2]}: could not parse value '{split[i]}' at position {i}")

@@ -2,7 +2,7 @@ from datetime import datetime
 
 
 def read_data(lines):
-    return [[float(x) for x in line.split()[2:]] for line in lines[1:]]
+    return [[5.0 if x == 'OVRFLW' else float(x) for x in line.split()[2:]] for line in lines[1:]]
 
 
 def read_statistics(lines):
