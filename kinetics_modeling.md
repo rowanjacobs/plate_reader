@@ -7,6 +7,15 @@
 
 GS-Mg-ADP-Glu-P + NH₄⁺ → GS-Mg-ADP-(Glu-NH₃)-P → GS-Mg-ADP-Pi-Gln
 
+## Math
+(see Orsi and Tipton, 1979)
+
+$$Vt = [P] + K_m \ln\frac{[S]_0}{[S]_0-[P]} $$
+$$Vt = ([S]_0-[S]) + K_m \ln\frac{[S]_0}{[S]}$$
+$$-\frac{\Delta[S]}t = V - K_m \frac1t\ln\frac{[S]_0}{[S]}$$
+$$\Delta[S] = K_m \ln\frac{[S]_0}{[S]} - Vt$$
+
+
 # The gory details
 ## GS Model
 from https://dx.doi.org/10.1021/bi00169a007
