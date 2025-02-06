@@ -4,6 +4,7 @@ import absorbance
 import apply_statistics
 import read_tsv
 import replicate_set
+import replicate_set_timeline
 import trim_plate_reader_output
 
 import argparse
@@ -23,10 +24,10 @@ def process_file(input_file, output_file, single_line=False):
 
     data_lines, _ = trim_plate_reader_output.trim_plate_reader_output(lines)
     if single_line:
-        data = replicate_set.data_into_replicate_set_timelines_single_line(data_lines)
+        data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines)
     else:
-        data = replicate_set.data_into_replicate_set_timelines(data_lines)
-    data_rows = replicate_set.generate_timeline_table(data)
+        data = read_tsv.data_into_replicate_set_timelines(data_lines)
+    data_rows = replicate_set_timeline.generate_timeline_table(data)
 
     with open(output_file, 'w', newline='') as outfile:
         writer = csv.writer(outfile)

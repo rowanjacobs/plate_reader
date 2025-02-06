@@ -1,7 +1,8 @@
 import math
 import unittest
 
-from replicate_set import ReplicateSet, ReplicateSetTimeline
+from replicate_set import ReplicateSet
+from replicate_set_timeline import ReplicateSetTimeline
 
 mock_pr_output = """
 
