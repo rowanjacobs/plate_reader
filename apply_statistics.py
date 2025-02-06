@@ -2,46 +2,6 @@ import math
 import statistics
 
 
-def mean_concentrations(concs):
-    conc_clusters = clusterize(concs)
-    means = []
-
-    for cluster in conc_clusters:
-        outlier, _ = grubbs_test(cluster)
-        if outlier > -1:
-            del cluster[outlier]
-        avg = statistics.mean(cluster)
-        means.append(avg)
-
-    return means
-
-
-def stdev_concentrations(concs):
-    conc_clusters = clusterize(concs)
-    stdevs = []
-
-    for cluster in conc_clusters:
-        outlier, _ = grubbs_test(cluster)
-        if outlier > -1:
-            del cluster[outlier]
-        avg = statistics.stdev(cluster)
-        stdevs.append(avg)
-
-    return stdevs
-
-
-def clusterize(data):
-    clusters = []
-    rows = len(data)
-    cols = len(data[0]) if rows > 0 else 0
-
-    for i in range(0, rows - 1, 2):
-        for j in range(0, cols - 1, 2):
-            clusters.append([data[i][j], data[i][j + 1], data[i + 1][j], data[i + 1][j + 1]])
-
-    return clusters
-
-
 def grubbs_test(data, alpha=0.05):
     """
     Perform Grubbs' test to detect a single outlier in a dataset.
