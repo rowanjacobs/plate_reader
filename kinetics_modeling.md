@@ -12,8 +12,12 @@ GS-Mg-ADP-Glu-P + NH₄⁺ → GS-Mg-ADP-(Glu-NH₃)-P → GS-Mg-ADP-Pi-Gln
 
 $$Vt = [P] + K_m \ln\frac{[S]_0}{[S]_0-[P]} $$
 $$Vt = ([S]_0-[S]) + K_m \ln\frac{[S]_0}{[S]}$$
-$$-\frac{\Delta[S]}t = V - K_m \frac1t\ln\frac{[S]_0}{[S]}$$
-$$\Delta[S] = K_m \ln\frac{[S]_0}{[S]} - Vt$$
+
+Solving for $$[S]$$ gives us:
+
+$$K_m W(\frac{[S]_0}{K_m} e^{\frac{[S]_0}{K_m} - \frac{Vt}{K_m}})$$
+
+This is identical to equation (13) in Goličnik, 2012.
 
 
 # The gory details
