@@ -1,10 +1,7 @@
-import statistics
 import unittest
 
 import helpers
 from replicate_set import ReplicateSet
-from read_tsv import data_into_replicate_set_timelines, data_into_replicate_set_timelines_single_line
-from replicate_set_timeline import ReplicateSetTimeline
 
 
 class TestReplicateSet(unittest.TestCase):

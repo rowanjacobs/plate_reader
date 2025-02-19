@@ -1,8 +1,8 @@
 import math
 import unittest
+
 from hypothesis import given, strategies as st
 from lmfit import create_params
-from numpy import clongdouble
 
 from kinetics_modeling import objective
 
