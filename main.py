@@ -1,7 +1,7 @@
 import csv
 
 import absorbance
-import apply_statistics
+import outliers
 import read_tsv
 import replicate_set
 import replicate_set_timeline

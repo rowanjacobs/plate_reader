@@ -1,7 +1,7 @@
 import dataclasses
 import statistics
 
-import apply_statistics
+import outliers
 
 # ε₃₄₀(NADH) = 6220 M⁻¹cm⁻¹
 # A = εlc
@@ -27,7 +27,7 @@ class ReplicateSet:
         concs = self.concentrations()
         if len(concs) < 3:
             return concs
-        outlier, _ = apply_statistics.grubbs_test(concs)
+        outlier, _ = outliers.grubbs_test(concs)
         if outlier > -1:
             del concs[outlier]
         return concs
