@@ -5,7 +5,7 @@ from unittest import mock
 from hypothesis import given, strategies as st
 from lmfit import create_params
 
-from kinetics_modeling import objective, fit, objective_leastsq
+from kinetics_modeling import objective, fit, objective_leastsq, curve_params
 
 
 class TestKineticsModeling(unittest.TestCase):
@@ -23,6 +23,14 @@ class TestKineticsModeling(unittest.TestCase):
             self.assertAlmostEqual(vt, v_max*t, places=5)
         else:
             self.assertAlmostEqual(v_max*t/vt, 1, places=5)
+
+    @mock.patch('kinetics_modeling.create_params', autospec=True)
+    def test_curve_params(self, mock_params):
+        mock_params.return_value = 'pineapple'
+
+        self.assertEqual(curve_params(), 'pineapple')
+
+        mock_params.assert_called_once_with(s0=2, k_m=0.05, v_max=0.075)
 
     @mock.patch('kinetics_modeling.Minimizer', autospec=True)
     @mock.patch('kinetics_modeling.curve_params', autospec=True)

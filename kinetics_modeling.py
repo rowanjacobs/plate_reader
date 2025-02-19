@@ -31,7 +31,7 @@ def objective_leastsq(params, t, data):
 def curve_params():
     return create_params(s0=2,  # see Benchling protocol
                          k_m=0.05,  # 50 µM
-                         v_max=1.5 * 0.05  # kcat * [E]_0—see Benchling for [E]_0
+                         v_max=0.075  # = 1.5*0.05 = kcat * [E]_0—see Benchling for [E]_0
                          )
 
 
