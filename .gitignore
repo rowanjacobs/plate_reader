@@ -3,3 +3,4 @@ venv
 input
 .DS_Store
 .hypothesis
+.coverage
