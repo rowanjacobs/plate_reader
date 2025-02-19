@@ -35,8 +35,6 @@ def curve_params():
                          )
 
 
-# no tests for this because the tests would be very silly
-# "did you call the library" and/or "did the library work"
 def fit(t, data):
     params = curve_params()
     minimizer = Minimizer(objective_leastsq, params, fcn_args=(t, data))
@@ -44,5 +42,4 @@ def fit(t, data):
     # but let's specify it explicitly anyway
     # it requires an objective function that provides an array
     result = minimizer.minimize(method='leastsq')
-    report_fit(result)
     return result
