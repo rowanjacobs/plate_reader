@@ -1,5 +1,6 @@
 import dataclasses
 
+from kinetics_modeling import fit
 from replicate_set import ReplicateSet
 
 
@@ -13,6 +14,14 @@ class ReplicateSetTimeline:
         # TODO check that sets have the same length
         joined_rs = [self.replicate_sets[i].join(rstl.replicate_sets[i]) for i in range(len(self.replicate_sets))]
         return ReplicateSetTimeline(well=self.well + rstl.well, replicate_sets=joined_rs)
+
+    def fit(self):
+        data = [rs.mean_concentration() for rs in self.replicate_sets]
+        times = [rs.time for rs in self.replicate_sets]
+        result = fit(times, data)
+        # TODO check success status
+        # TODO write tests
+        return result.params
 
 
 def group_and_join_replicate_set_timelines(data):

@@ -1,6 +1,5 @@
-from lmfit import create_params
+from lmfit import create_params, Minimizer, report_fit
 from numpy import log, exp
-
 
 # define objective function: returns the array to be minimized
 from scipy.special import lambertw
@@ -24,8 +23,25 @@ def _approx_lambert_w(s0, k_m, v_max, t):
     return lambertw(exp(log_term)).real
 
 
+def objective_leastsq(params, t, data):
+    return [objective(params, t, datum) for datum in data]
+
+
 def curve_params():
     return create_params(s0=2,  # see Benchling protocol
                          k_m=0.05,  # 50 µM
                          v_max=1.5 * 0.05  # kcat * [E]_0—see Benchling for [E]_0
                          )
+
+
+# no tests for this because the tests would be very silly
+# "did you call the library" and/or "did the library work"
+def fit(t, data):
+    params = curve_params()
+    minimizer = Minimizer(objective_leastsq, params, fcn_args=(t, data))
+    # Levenberg-Marquardt is the default method
+    # but let's specify it explicitly anyway
+    # it requires an objective function that provides an array
+    result = minimizer.minimize(method='leastsq')
+    report_fit(result)
+    return result
