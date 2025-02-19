@@ -1,4 +1,5 @@
 import dataclasses
+from typing import List
 
 from kinetics_modeling import fit
 from replicate_set import ReplicateSet
@@ -55,16 +56,30 @@ def group_and_join_replicate_set_timelines(data):
     return result
 
 
+def generate_fit_table(rstls: List[ReplicateSetTimeline]):
+    wells = {}
+    for rstl in rstls:
+        # TODO catch errors in fitting
+        params = rstl.fit()
+        wells += {rstl.well: params}
+
+    wells_sorted = sorted(list(wells.keys()))
+
+    table = [wells_sorted + ["S0", "Km", "Vmax"]]
+    for well in wells_sorted:
+        params = wells[well]
+        s0 = params['s0']
+        k_m = params['k_m']
+        v_max = params['v_max']
+        table.append([well, s0, k_m, v_max])
+
+    return table
+
+
 def generate_timeline_table(rstls):
     # Extract all unique times and wells maintaining original order
     times = sorted(set(rs.time for rstl in rstls for rs in rstl.replicate_sets))
-    wells = []
-    seen_wells = set()
-    for rstl in rstls:
-        for rs in rstl.replicate_sets:
-            if rs.well not in seen_wells:
-                wells.append(rs.well)
-                seen_wells.add(rs.well)
+    wells = _seen_wells(rstls)
 
     # Initialize the table with column headers
     table = [["Time"] + wells]
@@ -86,3 +101,14 @@ def generate_timeline_table(rstls):
         table.append(row)
 
     return table
+
+
+def _seen_wells(rstls):
+    wells = []
+    seen_wells = set()
+    for rstl in rstls:
+        for rs in rstl.replicate_sets:
+            if rs.well not in seen_wells:
+                wells.append(rs.well)
+                seen_wells.add(rs.well)
+    return wells

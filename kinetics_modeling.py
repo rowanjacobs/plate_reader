@@ -6,6 +6,7 @@ from scipy.special import lambertw
 
 
 def objective(params, t, data):
+    # TODO calculate s0 directly from initial absorbance value
     s0 = params['s0']
     k_m = params['k_m']
     v_max = params['v_max']
