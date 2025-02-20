@@ -14,8 +14,8 @@ class TestKineticsModeling(unittest.TestCase):
            st.floats(min_value=1e-9, max_value=100),  # v_max
            st.integers(min_value=0, max_value=6000))  # t
     def test_objective_matches_michaelis_menten_kinetics(self, s0, k_m, v_max, t):
-        params = create_params(s0=s0, k_m=k_m, v_max=v_max)
-        model_s = objective(params, t, 0)
+        params = create_params(k_m=k_m, v_max=v_max)
+        model_s = objective(params, t, 0, s0)
         # $$Vt = ([S]_0-[S]) + K_m \ln\frac{[S]_0}{[S]}$$
         self.assertNotEqual(model_s, 0)  # TODO is this math correct?
         vt = (s0 - model_s) + k_m * math.log(s0 / model_s)
@@ -30,7 +30,7 @@ class TestKineticsModeling(unittest.TestCase):
 
         self.assertEqual(curve_params(), 'pineapple')
 
-        mock_params.assert_called_once_with(s0=2, k_m={'value': 0.05, 'min': 1e-9}, v_max={'value': 0.075, 'min': 1e-9})
+        mock_params.assert_called_once_with(k_m={'value': 0.05, 'min': 1e-9}, v_max={'value': 0.075, 'min': 1e-9})
 
     @mock.patch('kinetics_modeling.Minimizer', autospec=True)
     @mock.patch('kinetics_modeling.curve_params', autospec=True)

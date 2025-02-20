@@ -7,9 +7,7 @@ from numpy import log, exp
 from scipy.special import lambertw
 
 
-def objective(params, t, data):
-    # TODO calculate s0 directly from initial absorbance value
-    s0 = params['s0']
+def objective(params, t, data, s0):
     k_m = params['k_m']
     v_max = params['v_max']
     # approximation of k_m * lambertw(s0 / k_m * exp(s0 / k_m - (v_max * t) / k_m))
@@ -29,13 +27,17 @@ def _approx_lambert_w(s0, k_m, v_max, t):
     return lambertw(exp(log_term)).real
 
 
+def _s0(data):
+    from absorbance import path_length, extinction
+    return data[0] / (path_length * extinction)
+
+
 def objective_leastsq(params, t, data):
-    return [objective(params, t[i], data[i]) for i in range(len(data))]
+    return [objective(params, t[i], data[i], _s0(data)) for i in range(len(data))]
 
 
 def curve_params():
-    return create_params(s0=2,  # see Benchling protocol
-                         k_m={'value': 0.05, 'min': 1e-9},  # 50 µM
+    return create_params(k_m={'value': 0.05, 'min': 1e-9},  # 50 µM
                          v_max={'value': 0.075, 'min': 1e-9}  # = 1.5*0.05 = kcat * [E]_0—see Benchling for [E]_0
                          )
 
