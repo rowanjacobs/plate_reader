@@ -9,6 +9,10 @@ def time_in_seconds(time_str):
     return (datetime.strptime(time_str, time_format) - datetime(1900, 1, 1)).seconds
 
 
+def float_or_overflow(x):
+    return 5.0 if x == 'OVRFLW' else float(x)
+
+
 def data_into_replicate_set_timelines(data_lines):
     wells = data_lines[0].split()[3:]
     well_groups = [wells[i] + wells[i + 1] for i in range(0, len(wells), 2)]
@@ -17,7 +21,8 @@ def data_into_replicate_set_timelines(data_lines):
         split = line.split()
         time = time_in_seconds(split[0])
         # starting at index 2, read line in chunks of 2 apiece
-        data_groups = [[float(split[i + 2]), float(split[i + 3])] for i in range(0, len(wells), 2)]
+        data_groups = [[float_or_overflow(split[i + 2]), float_or_overflow(split[i + 3])] for i in
+                       range(0, len(wells), 2)]
         for i in range(0, len(well_groups)):
             rs = ReplicateSet(time=time, data_points=data_groups[i], well=well_groups[i])
             replicate_set_timelines_dict[well_groups[i]].replicate_sets.append(rs)
@@ -45,7 +50,7 @@ def data_into_replicate_set_timelines_single_line(data_lines):
         time = time_in_seconds(split[0])
         for i in range(first_well + 2, last_well + 3):
             try:
-                rs = ReplicateSet(time=time, data_points=[5.0 if split[i] == 'OVRFLW' else float(split[i])],
+                rs = ReplicateSet(time=time, data_points=[float_or_overflow(split[i])],
                                   well=wells[i - 2])
                 replicate_set_timelines[i - (first_well + 2)].replicate_sets.append(rs)
             except ValueError:
