@@ -6,31 +6,30 @@ import replicate_set_timeline
 import trim_plate_reader_output
 
 
-def process_file(input_file, output_file, single_line=False):
-    # Process:
-    # 1. read plate reader file
-    # 2. trim non-data lines, saving off statistical lines
-    # 3. read data lines as TSV
-    # 4. read statistical lines as TSV
-    # 5. apply Beer's law
-    # 6. write output to file(s)
-
-    with open(input_file, 'r', encoding='iso-8859-1') as infile:
-        lines = infile.readlines()
-
+def process_file(lines, single_line=False):
     data_lines, _ = trim_plate_reader_output.trim_plate_reader_output(lines)
     if single_line:
         data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines)
     else:
         data = read_tsv.data_into_replicate_set_timelines(data_lines)
-    data_rows = replicate_set_timeline.generate_timeline_table(data)
+    return replicate_set_timeline.generate_timeline_table(data)
 
+
+def write_output(data_rows, output_file):
     with open(output_file, 'w', newline='') as outfile:
         writer = csv.writer(outfile)
 
         for row in data_rows:
             print(row)
             writer.writerow(row)
+
+
+def read_plate_file(input_file):
+    # the plate reader produces output in iso-8859-1 format.
+    # attempting to parse it as Unicode will result in serious errors.
+    with open(input_file, 'r', encoding='iso-8859-1') as infile:
+        lines = infile.readlines()
+    return lines
 
 
 def main():
@@ -46,8 +45,11 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
 
-    # Call the processing function with the input and output file paths
-    process_file(args.input, args.output, args.single_line)
+    lines = read_plate_file(args.input)
+
+    data_rows = process_file(lines, args.single_line)
+
+    write_output(data_rows, args.output)
 
 
 if __name__ == '__main__':
