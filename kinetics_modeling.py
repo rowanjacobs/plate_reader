@@ -12,7 +12,7 @@ def objective(params, t, data):
     s0 = params['s0']
     k_m = params['k_m']
     v_max = params['v_max']
-    # approximation of  k_m * lambertw(s0 / k_m * exp(s0 / k_m - (v_max * t) / k_m))
+    # approximation of k_m * lambertw(s0 / k_m * exp(s0 / k_m - (v_max * t) / k_m))
     model = k_m * _approx_lambert_w(s0, k_m, v_max, t)
     return model - data
 

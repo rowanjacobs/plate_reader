@@ -17,12 +17,12 @@ class TestKineticsModeling(unittest.TestCase):
         params = create_params(s0=s0, k_m=k_m, v_max=v_max)
         model_s = objective(params, t, 0)
         # $$Vt = ([S]_0-[S]) + K_m \ln\frac{[S]_0}{[S]}$$
-        self.assertNotEqual(model_s, 0) # TODO is this math correct?
+        self.assertNotEqual(model_s, 0)  # TODO is this math correct?
         vt = (s0 - model_s) + k_m * math.log(s0 / model_s)
-        if v_max*t == 0:
-            self.assertAlmostEqual(vt, v_max*t, places=5)
+        if v_max * t == 0:
+            self.assertAlmostEqual(vt, v_max * t, places=5)
         else:
-            self.assertAlmostEqual(v_max*t/vt, 1, places=5)
+            self.assertAlmostEqual(v_max * t / vt, 1, places=5)
 
     @mock.patch('kinetics_modeling.create_params', autospec=True)
     def test_curve_params(self, mock_params):
@@ -49,5 +49,3 @@ class TestKineticsModeling(unittest.TestCase):
         mock_params.assert_called_once()
         mock_minimizer.assert_called_once_with(objective_leastsq, 12345678, fcn_args=(t, data))
         instance.minimize.assert_called_once_with(method='leastsq')
-
-
