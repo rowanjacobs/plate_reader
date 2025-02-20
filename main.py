@@ -12,7 +12,8 @@ def process_file(lines, single_line=False):
         data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines)
     else:
         data = read_tsv.data_into_replicate_set_timelines(data_lines)
-    return replicate_set_timeline.generate_timeline_table(data)
+    # TODO there should be some option for outputting avg conc data as well
+    return replicate_set_timeline.generate_fit_table(data)
 
 
 def write_output(data_rows, output_file):
