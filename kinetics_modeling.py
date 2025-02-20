@@ -1,13 +1,14 @@
 import math
+from typing import List
 
-from lmfit import create_params, Minimizer, report_fit
+from lmfit import create_params, Minimizer, report_fit, Parameters
 from numpy import log, exp
 
 # define objective function: returns the array to be minimized
 from scipy.special import lambertw
 
 
-def objective(params, t, data, s0):
+def objective(params: Parameters, t: int, data: float, s0: float):
     k_m = params['k_m']
     v_max = params['v_max']
     # approximation of k_m * lambertw(s0 / k_m * exp(s0 / k_m - (v_max * t) / k_m))
@@ -15,7 +16,7 @@ def objective(params, t, data, s0):
     return model - data
 
 
-def _approx_lambert_w(s0, k_m, v_max, t):
+def _approx_lambert_w(s0: float, k_m: float, v_max: float, t: int):
     log_term = log(s0 / k_m) + (s0 / k_m) - (v_max * t / k_m)
     if math.isnan(log_term):
         # TODO proper error handling
@@ -27,12 +28,12 @@ def _approx_lambert_w(s0, k_m, v_max, t):
     return lambertw(exp(log_term)).real
 
 
-def _s0(data):
+def _s0(data: List[float]):
     from absorbance import path_length, extinction
     return data[0] / (path_length * extinction)
 
 
-def objective_leastsq(params, t, data):
+def objective_leastsq(params: Parameters, t: List[int], data: List[float]):
     return [objective(params, t[i], data[i], _s0(data)) for i in range(len(data))]
 
 
@@ -42,7 +43,7 @@ def curve_params():
                          )
 
 
-def fit(t, data):
+def fit(t: List[int], data: List[float]):
     params = curve_params()
     minimizer = Minimizer(objective_leastsq, params, fcn_args=(t, data))
     # Levenberg-Marquardt is the default method
