@@ -11,7 +11,10 @@ def process_file(lines, single_line=False):
     if single_line:
         data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines)
     else:
-        data = read_tsv.data_into_replicate_set_timelines(data_lines)
+        try:
+            data = read_tsv.data_into_replicate_set_timelines(data_lines)
+        except IndexError:
+            data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines)
     # TODO there should be some option for outputting avg conc data as well
     return replicate_set_timeline.generate_fit_table(data)
 
