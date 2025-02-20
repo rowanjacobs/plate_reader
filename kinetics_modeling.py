@@ -1,3 +1,5 @@
+import math
+
 from lmfit import create_params, Minimizer, report_fit
 from numpy import log, exp
 
@@ -17,6 +19,9 @@ def objective(params, t, data):
 
 def _approx_lambert_w(s0, k_m, v_max, t):
     log_term = log(s0 / k_m) + (s0 / k_m) - (v_max * t / k_m)
+    if math.isnan(log_term):
+        # TODO proper error handling
+        raise ValueError(f'Got NaN value for objective function at s0 {s0}, k_m {k_m}, v_max {v_max}, t {t}')
     if log_term > 10:  # large log_term, use asymptotic formula
         return log_term - log(log_term) + log(log_term) / log_term
     if log_term <= -5:  # small log_term, use linear approximation
@@ -25,13 +30,13 @@ def _approx_lambert_w(s0, k_m, v_max, t):
 
 
 def objective_leastsq(params, t, data):
-    return [objective(params, t, datum) for datum in data]
+    return [objective(params, t[i], data[i]) for i in range(len(data))]
 
 
 def curve_params():
     return create_params(s0=2,  # see Benchling protocol
-                         k_m=0.05,  # 50 µM
-                         v_max=0.075  # = 1.5*0.05 = kcat * [E]_0—see Benchling for [E]_0
+                         k_m={'value': 0.05, 'min': 1e-9},  # 50 µM
+                         v_max={'value': 0.075, 'min': 1e-9}  # = 1.5*0.05 = kcat * [E]_0—see Benchling for [E]_0
                          )
 
 

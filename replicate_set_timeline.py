@@ -57,20 +57,20 @@ def group_and_join_replicate_set_timelines(data):
 
 
 def generate_fit_table(rstls: List[ReplicateSetTimeline]):
-    wells = {}
+    fits = {}
     for rstl in rstls:
         # TODO catch errors in fitting
         params = rstl.fit()
-        wells += {rstl.well: params}
+        fits[rstl.well] = params
 
-    wells_sorted = sorted(list(wells.keys()))
+    fits_sorted = sorted(list(fits.keys()))
 
-    table = [wells_sorted + ["S0", "Km", "Vmax"]]
-    for well in wells_sorted:
-        params = wells[well]
-        s0 = params['s0']
-        k_m = params['k_m']
-        v_max = params['v_max']
+    table = [fits_sorted + ["S0", "Km", "Vmax"]]
+    for well in fits_sorted:
+        params = fits[well]
+        s0 = params['s0'].value.item()
+        k_m = params['k_m'].value.item()
+        v_max = params['v_max'].value.item()
         table.append([well, s0, k_m, v_max])
 
     return table
