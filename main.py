@@ -16,7 +16,7 @@ def process_file(lines, single_line=False):
         except IndexError:
             data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines)
     # TODO there should be some option for outputting avg conc data as well
-    return replicate_set_timeline.generate_fit_table(data)
+    return data
 
 
 def write_output(data_rows, output_file):
@@ -51,7 +51,9 @@ def main():
 
     lines = read_plate_file(args.input)
 
-    data_rows = process_file(lines, args.single_line)
+    data = process_file(lines, args.single_line)
+
+    data_rows = replicate_set_timeline.generate_fit_table(data) + replicate_set_timeline.generate_timeline_table(data)
 
     write_output(data_rows, args.output)
 

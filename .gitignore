@@ -1,6 +1,7 @@
 .idea
 venv
 input
+output
 .DS_Store
 .hypothesis
 .coverage
