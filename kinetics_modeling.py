@@ -9,8 +9,10 @@ from scipy.special import lambertw
 
 
 def objective(params: Parameters, t: int, data: float, s0: float):
+    e = params['e']
     k_m = params['k_m']
-    v_max = params['v_max']
+    k_cat = params['k_cat']
+    v_max = k_cat*e
     # approximation of k_m * lambertw(s0 / k_m * exp(s0 / k_m - (v_max * t) / k_m))
     model = k_m * _approx_lambert_w(s0, k_m, v_max, t)
     return model - data
@@ -38,8 +40,9 @@ def objective_leastsq(params: Parameters, t: List[int], data: List[float]):
 
 
 def curve_params():
-    return create_params(k_m={'value': 0.05, 'min': 1e-9, 'max': 1e-3},  # 50 µM
-                         v_max={'value': 0.075, 'min': 1e-9}  # = 1.5*0.05 = kcat * [E]_0—see Benchling for [E]_0
+    return create_params(e={'value': 0.05, 'vary': False},  # see Benchling for [E]_0
+                         k_m={'value': 0.05, 'min': 1e-9, 'max': 1e-3},  # 50 µM
+                         k_cat={'value': 1.5, 'min': 1e-100}
                          )
 
 
