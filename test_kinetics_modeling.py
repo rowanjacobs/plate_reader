@@ -30,7 +30,8 @@ class TestKineticsModeling(unittest.TestCase):
 
         self.assertEqual(curve_params(), 'pineapple')
 
-        mock_params.assert_called_once_with(k_m={'value': 0.05, 'min': 1e-9}, v_max={'value': 0.075, 'min': 1e-9})
+        mock_params.assert_called_once_with(k_m={'value': 0.05, 'min': 1e-9, 'max': 1e-3},
+                                            v_max={'value': 0.075, 'min': 1e-9})
 
     @mock.patch('kinetics_modeling.Minimizer', autospec=True)
     @mock.patch('kinetics_modeling.curve_params', autospec=True)

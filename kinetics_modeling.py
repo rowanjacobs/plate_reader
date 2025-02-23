@@ -38,7 +38,7 @@ def objective_leastsq(params: Parameters, t: List[int], data: List[float]):
 
 
 def curve_params():
-    return create_params(k_m={'value': 0.05, 'min': 1e-9},  # 50 µM
+    return create_params(k_m={'value': 0.05, 'min': 1e-9, 'max': 1e-3},  # 50 µM
                          v_max={'value': 0.075, 'min': 1e-9}  # = 1.5*0.05 = kcat * [E]_0—see Benchling for [E]_0
                          )
 
