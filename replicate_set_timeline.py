@@ -65,7 +65,7 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline]):
 
     fits_sorted = sorted(list(fits.keys()))
 
-    table = [fits_sorted + ["Km", "kcat"]]
+    table = [["well", "Km", "kcat"]]
     for well in fits_sorted:
         params = fits[well]
         k_m = params['k_m'].value.item()

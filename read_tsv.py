@@ -34,12 +34,14 @@ def data_into_replicate_set_timelines_single_line(data_lines):
     wells = data_lines[0].split()[3:]
     data_line_0 = data_lines[1].split('\t')
     first_well, last_well = 0, len(wells)
+    started_wells = False
     for i, string in enumerate(data_line_0[2:]):
         if string:
-            if first_well == 0:
+            if not started_wells:
                 first_well = i
+                started_wells = True
             last_well = i
-        if first_well > 0 and not string:
+        if started_wells and not string:
             break
 
     replicate_set_timelines = [ReplicateSetTimeline(well=w, replicate_sets=[]) for w in

@@ -21,6 +21,10 @@ class TestReadTsv(unittest.TestCase):
                           'E15', 'E16', 'E17', 'E18', 'E19', 'E20', 'E21', 'E22', 'E23', 'E24']
                          )
 
+    def test_data_into_replicate_set_timelines_single_line(self):
+        rstls = data_into_replicate_set_timelines_single_line(helpers.mock_long_data_single_lines.splitlines())
+        self.assertEqual(rstls[0].well, 'A1')
+
     def test_data_into_replicate_set_timelines_single_line_omits_statistical_tests(self):
         rstls = data_into_replicate_set_timelines_single_line(helpers.mock_long_data_lines.splitlines())
         rstls[0].replicate_sets[0].mean_concentration()
