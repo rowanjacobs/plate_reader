@@ -15,7 +15,7 @@ $$Vt = ([S]_0-[S]) + K_m \ln\frac{[S]_0}{[S]}$$
 
 Solving for $$[S]$$ gives us:
 
-$$K_m W(\frac{[S]_0}{K_m} e^{\frac{[S]_0}{K_m} - \frac{Vt}{K_m}})$$
+$$K_m W\left(\frac{[S]_0}{K_m} e^{\frac{[S]_0}{K_m} - \frac{Vt}{K_m}}\right)$$
 
 This is identical to equation (13) in Goličnik, 2012.
 
