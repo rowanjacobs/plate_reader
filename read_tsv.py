@@ -15,10 +15,10 @@ def float_or_overflow(x):
 
 
 def data_into_replicate_set_timelines(data_lines):
-    wells_split = data_lines[0].split()[3:]
+    wells_split = data_lines[0].split('\t')[2:]
     wells = []
     for i, string in enumerate(data_lines[1].split('\t')[2:]):
-        if string:
+        if string and string != '\n':
             wells.append((i+2, wells_split[i]))
 
     by_col = defaultdict(list)
@@ -45,7 +45,7 @@ def data_into_replicate_set_timelines(data_lines):
                 split = line.split('\t')
                 time = time_in_seconds(split[0])
                 data = float_or_overflow(split[wg[well]])
-                rs = ReplicateSet(time=time, data_points=[data], well=data_lines[0].split()[wg[well]+1])
+                rs = ReplicateSet(time=time, data_points=[data], well=data_lines[0].split()[wg[well]])
                 rstl.replicate_sets.append(rs)
             wg_rstls.append(rstl)
         wg_rstl = wg_rstls[0]
