@@ -13,6 +13,10 @@ class TestReadTsv(unittest.TestCase):
     def test_data_into_replicate_set_timelines_handles_overflow(self):
         data_into_replicate_set_timelines(helpers.mock_overflow_lines.splitlines())
 
+    def test_data_into_replicate_set_timelines_handles_discontinuous_wells(self):
+        rstls = data_into_replicate_set_timelines(helpers.mock_discontinuous_lines.splitlines())
+        self.assertEqual('A3A4B3B4', rstls[0].well)
+
     def test_data_into_replicate_set_timelines_single_line_of_384_wells_detects_wells_in_use(self):
         rstls = data_into_replicate_set_timelines_single_line(helpers.mock_long_data_lines.splitlines())
         wells = [rstl.well for rstl in rstls]
@@ -29,6 +33,7 @@ class TestReadTsv(unittest.TestCase):
         rstls = data_into_replicate_set_timelines_single_line(helpers.mock_long_data_lines.splitlines())
         rstls[0].replicate_sets[0].mean_concentration()
         rstls[0].replicate_sets[0].stdev_concentration()
+
 
 if __name__ == '__main__':
     unittest.main()

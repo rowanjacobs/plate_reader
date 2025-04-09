@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime
 
 from replicate_set import ReplicateSet
@@ -14,20 +15,44 @@ def float_or_overflow(x):
 
 
 def data_into_replicate_set_timelines(data_lines):
-    wells = data_lines[0].split()[3:]
-    well_groups = [wells[i] + wells[i + 1] for i in range(0, len(wells), 2)]
-    replicate_set_timelines_dict = {wg: ReplicateSetTimeline(well=wg, replicate_sets=[]) for wg in well_groups}
-    for line in data_lines[1:]:
-        split = line.split()
-        time = time_in_seconds(split[0])
-        # starting at index 2, read line in chunks of 2 apiece
-        data_groups = [[float_or_overflow(split[i + 2]), float_or_overflow(split[i + 3])] for i in
-                       range(0, len(wells), 2)]
-        for i in range(0, len(well_groups)):
-            rs = ReplicateSet(time=time, data_points=data_groups[i], well=well_groups[i])
-            replicate_set_timelines_dict[well_groups[i]].replicate_sets.append(rs)
-    rstls = sorted(replicate_set_timelines_dict.values(), key=lambda rstl: rstl.well)
-    return group_and_join_replicate_set_timelines(rstls)
+    wells_split = data_lines[0].split()[3:]
+    wells = []
+    for i, string in enumerate(data_lines[1].split('\t')[2:]):
+        if string:
+            wells.append((i+2, wells_split[i]))
+
+    by_col = defaultdict(list)
+    for value, well in wells:
+        col = int(well[1:])
+        by_col[col].append((value, well))
+
+    well_groups = []
+    sorted_cols = sorted(by_col.keys())
+
+    for i in range(0, len(sorted_cols), 2):
+        c1 = by_col[sorted_cols[i]]
+        c2 = by_col[sorted_cols[i + 1]]
+        block = c1 + c2
+        block_dict = {well: val for val, well in sorted(block, key=lambda x: x[1])}
+        well_groups.append(block_dict)
+
+    rstls = []
+    for wg in well_groups:
+        wg_rstls = []
+        for well in wg.keys():
+            rstl = ReplicateSetTimeline(well=well, replicate_sets=[])
+            for line in data_lines[1:]:
+                split = line.split('\t')
+                time = time_in_seconds(split[0])
+                data = float_or_overflow(split[wg[well]])
+                rs = ReplicateSet(time=time, data_points=[data], well=data_lines[0].split()[wg[well]+1])
+                rstl.replicate_sets.append(rs)
+            wg_rstls.append(rstl)
+        wg_rstl = wg_rstls[0]
+        for rstl in wg_rstls[1:]:
+            wg_rstl = wg_rstl.join(rstl)
+        rstls.append(wg_rstl)
+    return rstls
 
 
 def data_into_replicate_set_timelines_single_line(data_lines):
