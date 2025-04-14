@@ -13,7 +13,8 @@ def process_file(lines, single_line=False):
     else:
         try:
             data = read_tsv.data_into_replicate_set_timelines(data_lines)
-        except IndexError:
+        except IndexError as e:
+            print(e)
             data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines)
     # TODO there should be some option for outputting avg conc data as well
     return data
@@ -24,7 +25,6 @@ def write_output(data_rows, output_file):
         writer = csv.writer(outfile)
 
         for row in data_rows:
-            print(row)
             writer.writerow(row)
 
 
