@@ -45,7 +45,7 @@ def data_into_replicate_set_timelines(data_lines):
                 split = line.split('\t')
                 time = time_in_seconds(split[0])
                 data = float_or_overflow(split[wg[well]])
-                rs = ReplicateSet(time=time, data_points=[data], well=data_lines[0].split()[wg[well]])
+                rs = ReplicateSet(time=time, data_points=[data], well=well)
                 rstl.replicate_sets.append(rs)
             wg_rstls.append(rstl)
         wg_rstl = wg_rstls[0]

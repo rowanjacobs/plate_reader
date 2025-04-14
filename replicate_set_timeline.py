@@ -78,7 +78,7 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline]):
 def generate_timeline_table(rstls):
     # Extract all unique times and wells maintaining original order
     times = sorted(set(rs.time for rstl in rstls for rs in rstl.replicate_sets))
-    wells = _seen_wells(rstls)
+    wells = sorted(set(rs.well for rstl in rstls for rs in rstl.replicate_sets))
 
     # Initialize the table with column headers
     table = [["Time"] + wells]
@@ -100,14 +100,3 @@ def generate_timeline_table(rstls):
         table.append(row)
 
     return table
-
-
-def _seen_wells(rstls):
-    wells = []
-    seen_wells = set()
-    for rstl in rstls:
-        for rs in rstl.replicate_sets:
-            if rs.well not in seen_wells:
-                wells.append(rs.well)
-                seen_wells.add(rs.well)
-    return wells
