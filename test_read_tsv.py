@@ -1,5 +1,6 @@
 import unittest
 
+import custom_matchers
 import helpers
 from read_tsv import data_into_replicate_set_timelines, data_into_replicate_set_timelines_single_line
 
@@ -8,7 +9,7 @@ class TestReadTsv(unittest.TestCase):
     def test_data_into_replicate_set_timelines_parses_data(self):
         rstls = data_into_replicate_set_timelines(helpers.mock_data_lines.splitlines())
         for i, rstl in enumerate(rstls):
-            helpers.assert_replicate_set_timelines_almost_equal(self, helpers.mock_data_replicate_sets[i], rstl)
+            custom_matchers.assert_replicate_set_timelines_almost_equal(self, helpers.mock_data_replicate_sets[i], rstl)
 
     def test_data_into_replicate_set_timelines_handles_overflow(self):
         data_into_replicate_set_timelines(helpers.mock_overflow_lines.splitlines())

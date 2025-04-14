@@ -1,5 +1,6 @@
 import unittest
 
+import custom_matchers
 import helpers
 from replicate_set import ReplicateSet
 from replicate_set_timeline import ReplicateSetTimeline
@@ -31,4 +32,4 @@ class TestReplicateSetTimeline(unittest.TestCase):
                 ReplicateSet(time=12, data_points=[2.123, 2.345, 2.678, 2.901], well='A1A2B1B2')
             ]
         )
-        helpers.assert_replicate_set_timelines_almost_equal(self, rstl1.join(rstl2), rstl_expected)
+        custom_matchers.assert_replicate_set_timelines_almost_equal(self, rstl1.join(rstl2), rstl_expected)
