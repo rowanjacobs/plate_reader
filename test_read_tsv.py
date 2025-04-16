@@ -19,6 +19,11 @@ class TestReadTsv(unittest.TestCase):
         self.assertEqual('A3A4B3B4', rstls[0].well)
         self.assertEqual('A3A4B3B4', rstls[0].replicate_sets[0].well)
 
+    def test_data_into_replicate_set_timelines_tries_to_group_odd_numbers_of_wells(self):
+        rstls = data_into_replicate_set_timelines(helpers.mock_odd_number_rows_lines.splitlines())
+        self.assertEqual('C3C4D3D4', rstls[0].well)
+        self.assertEqual('C21D21', rstls[-1].well)
+
     def test_data_into_replicate_set_timelines_single_line_of_384_wells_detects_wells_in_use(self):
         rstls = data_into_replicate_set_timelines_single_line(helpers.mock_long_data_lines.splitlines())
         wells = [rstl.well for rstl in rstls]
