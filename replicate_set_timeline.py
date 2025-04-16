@@ -69,8 +69,7 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline]):
     for well in fits_sorted:
         params = fits[well]
         k_m = params['k_m'].value.item()
-        k_m_over_k_cat = params['k_m_over_k_cat'].value.item()
-        k_cat = k_m/k_m_over_k_cat
+        k_cat = params['k_cat'].value.item()
         table.append([well, k_m, k_cat, k_cat/k_m])
 
     return table
