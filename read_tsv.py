@@ -31,8 +31,11 @@ def data_into_replicate_set_timelines(data_lines):
 
     for i in range(0, len(sorted_cols), 2):
         c1 = by_col[sorted_cols[i]]
-        c2 = by_col[sorted_cols[i + 1]]
-        block = c1 + c2
+        try:
+            c2 = by_col[sorted_cols[i + 1]]
+            block = c1 + c2
+        except IndexError:
+            block = c1
         block_dict = {well: val for val, well in sorted(block, key=lambda x: x[1])}
         well_groups.append(block_dict)
 
