@@ -44,9 +44,13 @@ def data_into_replicate_set_timelines(data_lines):
         wg_rstls = []
         for well in wg.keys():
             rstl = ReplicateSetTimeline(well=well, replicate_sets=[])
-            for line in data_lines[1:]:
+            for i, line in enumerate(data_lines[1:]):
                 split = line.split('\t')
-                time = time_in_seconds(split[0])
+                try:
+                    time = time_in_seconds(split[0])
+                except ValueError:
+                    print(f"Value error for line {i}: could not parse value '{split[0]}' as time")
+                    break
                 data = float_or_overflow(split[wg[well]])
                 rs = ReplicateSet(time=time, data_points=[data], well=well)
                 rstl.replicate_sets.append(rs)
