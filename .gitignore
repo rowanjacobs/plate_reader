@@ -5,3 +5,4 @@ output
 .DS_Store
 .hypothesis
 .coverage
+__pycache__
