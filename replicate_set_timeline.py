@@ -56,7 +56,7 @@ def group_and_join_replicate_set_timelines(data):
     return result
 
 
-def generate_fit_table(rstls: List[ReplicateSetTimeline]):
+def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
     fits = {}
     for rstl in rstls:
         # TODO catch errors in fitting
@@ -66,6 +66,8 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline]):
     fits_sorted = sorted(list(fits.keys()))
 
     table = [["well", "Km", "kcat", "kcat/Km"]]
+    if filename != '':
+        table[0].append(filename)
     for well in fits_sorted:
         params = fits[well]
         k_m = params['k_m'].value.item()
