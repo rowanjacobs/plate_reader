@@ -14,20 +14,26 @@ def float_or_overflow(x):
     return 5.0 if x == 'OVRFLW' else float(x)
 
 
-def data_into_replicate_set_timelines(data_lines):
-    return __data_into_replicate_set_timelines(data_lines, single_line=False)
+def data_into_replicate_set_timelines(data_lines, filename=''):
+    return __data_into_replicate_set_timelines(data_lines, single_line=False, filename=filename)
 
 
-def data_into_replicate_set_timelines_single_line(data_lines):
-    return __data_into_replicate_set_timelines(data_lines, single_line=True)
+def data_into_replicate_set_timelines_single_line(data_lines, filename=''):
+    try:
+        return __data_into_replicate_set_timelines(data_lines, single_line=True, filename=filename)
+    except IndexError as e:
+        if filename != '':
+            print(f'Error in parsing {filename}')
+        print(e)
+    return []
 
 
-def __data_into_replicate_set_timelines(data_lines, single_line=False):
+def __data_into_replicate_set_timelines(data_lines, single_line=False, filename=''):
     wells_split = data_lines[0].split('\t')[2:]
     wells = []
     for i, string in enumerate(data_lines[1].split('\t')[2:]):
         if string and string != '\n':
-            wells.append((i+2, wells_split[i]))
+            wells.append((i + 2, wells_split[i]))
 
     if not single_line:
         by_col = defaultdict(list)
@@ -60,7 +66,10 @@ def __data_into_replicate_set_timelines(data_lines, single_line=False):
                 try:
                     time = time_in_seconds(split[0])
                 except ValueError:
-                    print(f"Value error for line {i}: could not parse value '{split[0]}' as time")
+                    if filename != '':
+                        print(f"Value error for line {i} of '{filename}': could not parse value '{split[0]}' as time")
+                    else:
+                        print(f"Value error for line {i}: could not parse value '{split[0]}' as time")
                     break
                 data = float_or_overflow(split[wg[well]])
                 rs = ReplicateSet(time=time, data_points=[data], well=well)

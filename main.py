@@ -6,22 +6,24 @@ import replicate_set_timeline
 import trim_plate_reader_output
 
 
-def process_file(lines, single_line=False):
+def process_file(lines, single_line=False, filename=''):
     data_lines, _ = trim_plate_reader_output.trim_plate_reader_output(lines)
     if single_line:
-        data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines)
+        data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines, filename=filename)
     else:
         try:
-            data = read_tsv.data_into_replicate_set_timelines(data_lines)
+            data = read_tsv.data_into_replicate_set_timelines(data_lines, filename=filename)
         except IndexError as e:
+            if filename != '':
+                print(f'Error in parsing {filename}')
             print(e)
-            data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines)
+            data = read_tsv.data_into_replicate_set_timelines_single_line(data_lines, filename=filename)
     # TODO there should be some option for outputting avg conc data as well
     return data
 
 
-def write_output(data_rows, output_file):
-    with open(output_file, 'w', newline='') as outfile:
+def write_output(data_rows, output_file, mode='w'):
+    with open(output_file, mode, newline='') as outfile:
         writer = csv.writer(outfile)
 
         for row in data_rows:
@@ -41,21 +43,37 @@ def main():
     parser = argparse.ArgumentParser(description="Process a plate reader data file into absorbance data")
 
     # Define the arguments
-    parser.add_argument('input', type=str, help="The input file to be processed")
+    parser.add_argument('input', nargs='?', type=str, help="The input file to be processed", default="input")
     parser.add_argument('output', type=str, help="The location to write the processed absorbance data")
     parser.add_argument('--single-line', action='store_true',
                         help="Set this flag to disable grouping wells into replicate sets.")
+    parser.add_argument('--megamix', action='store_true',
+                        help="Set this flag to process *all* input files in input directory")
 
     # Parse the arguments
     args = parser.parse_args()
 
-    lines = read_plate_file(args.input)
+    if args.megamix:
+        from os import listdir
+        from os.path import isfile, join
+        input_files = [f for f in listdir(args.input) if isfile(join(args.input, f)) and f != '.DS_Store']
 
-    data = process_file(lines, args.single_line)
+        files_data = {f: process_file(read_plate_file(join(args.input, f)), args.single_line, filename=f) for f in
+                      input_files}
 
-    data_rows = replicate_set_timeline.generate_fit_table(data) + replicate_set_timeline.generate_timeline_table(data)
+        files_rows = [replicate_set_timeline.generate_fit_table(files_data[f], f) for f in files_data]
 
-    write_output(data_rows, args.output)
+        write_output([x for xs in files_rows for x in xs], args.output, mode='a')
+
+    else:
+        lines = read_plate_file(args.input)
+
+        data = process_file(lines, args.single_line)
+
+        data_rows = replicate_set_timeline.generate_fit_table(data) + replicate_set_timeline.generate_timeline_table(
+            data)
+
+        write_output(data_rows, args.output)
 
 
 if __name__ == '__main__':
