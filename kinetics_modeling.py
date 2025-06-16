@@ -12,10 +12,10 @@ def objective(params: Parameters, t: int, data: float, s0: float):
     e = params['e']
     k_m = params['k_m']
     k_cat = params['k_cat']
-    v_max = k_cat*e
-    # approximation of k_m * lambertw(s0 / k_m * exp(s0 / k_m - (v_max * t) / k_m))
+    v_max = k_cat * e
+    # approximation of k_m * lambertw(s0 / k_m * exp(s0 / k_m - (v_max * t) / k_m)))
     model = k_m * _approx_lambert_w(s0, k_m, v_max, t)
-    return model - data
+    return data - model
 
 
 def _approx_lambert_w(s0: float, k_m: float, v_max: float, t: int):
@@ -23,25 +23,24 @@ def _approx_lambert_w(s0: float, k_m: float, v_max: float, t: int):
     if math.isnan(log_term):
         # TODO proper error handling
         raise ValueError(f'Got NaN value for objective function at s0 {s0}, k_m {k_m}, v_max {v_max}, t {t}')
-    if log_term > 10:  # large log_term, use asymptotic formula
+    if log_term > 600:  # large log_term, use asymptotic formula
         return log_term - log(log_term) + log(log_term) / log_term
-    if log_term <= -5:  # small log_term, use linear approximation
+    if log_term <= -100:  # small log_term, use linear approximation
         return exp(log_term)
     return lambertw(exp(log_term)).real
 
 
 def _s0(data: List[float]):
-    from absorbance import path_length, extinction
-    return data[0] / (path_length * extinction)
+    return max(data) - min(data)
 
 
 def objective_leastsq(params: Parameters, t: List[int], data: List[float]):
-    return [objective(params, t[i], data[i], _s0(data)) for i in range(len(data))]
+    return [objective(params, t[i], data[i] - min(data), _s0(data)) for i in range(len(data))]
 
 
 def curve_params():
-    return create_params(e={'value': 0.05, 'vary': False},  # see Benchling for [E]_0
-                         k_m={'value': 0.05, 'min': 1e-9, 'max': 1e-3},  # 50 µM
+    return create_params(e={'value': 1.14e-6, 'vary': False},  # see Benchling for [E]_0
+                         k_m={'value': 50e-6, 'min': 1e-9, 'max': 1e-3},  # 50 µM
                          k_cat={'value': 1.5, 'min': 1e-100}
                          )
 
