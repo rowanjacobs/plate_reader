@@ -65,14 +65,15 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
 
     fits_sorted = sorted(list(fits.keys()))
 
-    table = [["well", "Km", "kcat", "kcat/Km"]]
-    if filename != '':
-        table[0].append(filename)
+    table = []
     for well in fits_sorted:
         params = fits[well]
         k_m = params['k_m'].value.item()
         k_cat = params['k_cat'].value.item()
-        table.append([well, k_m, k_cat, k_cat/k_m])
+        if filename != '':
+            table.append([filename, well, k_m, k_cat, k_cat/k_m])
+        else:
+            table.append([well, k_m, k_cat, k_cat/k_m])
 
     return table
 
