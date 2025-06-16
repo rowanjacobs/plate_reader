@@ -15,29 +15,40 @@ def float_or_overflow(x):
 
 
 def data_into_replicate_set_timelines(data_lines):
+    return __data_into_replicate_set_timelines(data_lines, single_line=False)
+
+
+def data_into_replicate_set_timelines_single_line(data_lines):
+    return __data_into_replicate_set_timelines(data_lines, single_line=True)
+
+
+def __data_into_replicate_set_timelines(data_lines, single_line=False):
     wells_split = data_lines[0].split('\t')[2:]
     wells = []
     for i, string in enumerate(data_lines[1].split('\t')[2:]):
         if string and string != '\n':
             wells.append((i+2, wells_split[i]))
 
-    by_col = defaultdict(list)
-    for value, well in wells:
-        col = int(well[1:])
-        by_col[col].append((value, well))
+    if not single_line:
+        by_col = defaultdict(list)
+        for value, well in wells:
+            col = int(well[1:])
+            by_col[col].append((value, well))
 
-    well_groups = []
-    sorted_cols = sorted(by_col.keys())
+        well_groups = []
+        sorted_cols = sorted(by_col.keys())
 
-    for i in range(0, len(sorted_cols), 2):
-        c1 = by_col[sorted_cols[i]]
-        try:
-            c2 = by_col[sorted_cols[i + 1]]
-            block = c1 + c2
-        except IndexError:
-            block = c1
-        block_dict = {well: val for val, well in sorted(block, key=lambda x: x[1])}
-        well_groups.append(block_dict)
+        for i in range(0, len(sorted_cols), 2):
+            c1 = by_col[sorted_cols[i]]
+            try:
+                c2 = by_col[sorted_cols[i + 1]]
+                block = c1 + c2
+            except IndexError:
+                block = c1
+            block_dict = {well: val for val, well in sorted(block, key=lambda x: x[1])}
+            well_groups.append(block_dict)
+    else:
+        well_groups = [{well: val} for val, well in wells]
 
     rstls = []
     for wg in well_groups:
@@ -59,24 +70,4 @@ def data_into_replicate_set_timelines(data_lines):
         for rstl in wg_rstls[1:]:
             wg_rstl = wg_rstl.join(rstl)
         rstls.append(wg_rstl)
-    return rstls
-
-
-def data_into_replicate_set_timelines_single_line(data_lines):
-    wells_split = data_lines[0].split('\t')[2:]
-    wells = []
-    for i, string in enumerate(data_lines[1].split('\t')[2:]):
-        if string and string != '\n':
-            wells.append((i+2, wells_split[i]))
-
-    rstls = []
-    for i, well in wells:
-        rstl = ReplicateSetTimeline(well=well, replicate_sets=[])
-        for line in data_lines[1:]:
-            split = line.split('\t')
-            time = time_in_seconds(split[0])
-            data = float_or_overflow(split[i])
-            rs = ReplicateSet(time=time, data_points=[data], well=well)
-            rstl.replicate_sets.append(rs)
-        rstls.append(rstl)
     return rstls
