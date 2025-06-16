@@ -63,7 +63,9 @@ def main():
 
         files_rows = [replicate_set_timeline.generate_fit_table(files_data[f], f) for f in files_data]
 
-        write_output([x for xs in files_rows for x in xs], args.output, mode='a')
+        final_rows = [["filename", "well", "Km", "kcat", "kcat/Km"]] + [x for xs in files_rows for x in xs]
+
+        write_output(final_rows, args.output, mode='a')
 
     else:
         lines = read_plate_file(args.input)
@@ -72,6 +74,8 @@ def main():
 
         data_rows = replicate_set_timeline.generate_fit_table(data) + replicate_set_timeline.generate_timeline_table(
             data)
+
+        data_rows = [["well", "Km", "kcat", "kcat/Km"]] + data_rows
 
         write_output(data_rows, args.output)
 
