@@ -40,7 +40,7 @@ def objective_leastsq(params: Parameters, t: List[int], data: List[float]):
 
 def curve_params():
     return create_params(e={'value': 1.14e-6, 'vary': False},  # see Benchling for [E]_0
-                         k_m={'value': 50e-6, 'min': 1e-9, 'max': 1e-3},  # 50 µM
+                         k_m={'value': 5e-5, 'min': 1e-12, 'max': 1e3},  # 50 µM
                          k_cat={'value': 1.5, 'min': 1e-100}
                          )
 
