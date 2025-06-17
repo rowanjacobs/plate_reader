@@ -4,6 +4,8 @@ from typing import List
 from kinetics_modeling import fit
 from replicate_set import ReplicateSet
 
+import matplotlib.pyplot as plt
+
 
 @dataclasses.dataclass
 class ReplicateSetTimeline:
@@ -23,6 +25,17 @@ class ReplicateSetTimeline:
         # TODO check success status
         # TODO write tests
         return result.params
+
+    def plot_data(self):
+        data = [rs.mean_concentration() for rs in self.replicate_sets]
+        times = [rs.time for rs in self.replicate_sets]
+        return times, data
+
+    def plot(self):
+        fig, ax = plt.subplots()
+        x, y = self.plot_data()
+        ax.plot(x, y, '.:b')
+        return fig
 
 
 def group_and_join_replicate_set_timelines(data):
