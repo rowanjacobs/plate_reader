@@ -37,6 +37,12 @@ class ReplicateSetTimeline:
         ax.plot(x, y, '.:b')
         return fig
 
+    def normalize(self):
+        raw_data = [s for rs in self.replicate_sets for s in rs.data_points]
+        s0 = min(raw_data)
+        for rs in self.replicate_sets:
+            rs.data_points = [s - s0 for s in rs.data_points]
+
 
 def group_and_join_replicate_set_timelines(data):
     """

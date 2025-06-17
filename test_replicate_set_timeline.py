@@ -26,6 +26,26 @@ class TestReplicateSetTimeline(unittest.TestCase):
 
         custom_matchers.assert_arrays_of_arrays_almost_equal(self, rstl1.plot_data(), expected_data)
 
+    def test_normalize(self):
+        rstl_expected = ReplicateSetTimeline(
+            well='A1A2',
+            replicate_sets=[
+                ReplicateSet(time=0, data_points=[0.0, 0.222], well='A1A2'),
+                ReplicateSet(time=6, data_points=[1.0, 1.222], well='A1A2'),
+                ReplicateSet(time=12, data_points=[2.0, 2.222], well='A1A2')
+            ]
+        )
+        rstl = ReplicateSetTimeline(
+            well='A1A2',
+            replicate_sets=[
+                ReplicateSet(time=0, data_points=[0.123, 0.345], well='A1A2'),
+                ReplicateSet(time=6, data_points=[1.123, 1.345], well='A1A2'),
+                ReplicateSet(time=12, data_points=[2.123, 2.345], well='A1A2')
+            ]
+        )
+        rstl.normalize()
+        custom_matchers.assert_replicate_set_timelines_almost_equal(self, rstl, rstl_expected)
+
     def test_join_replicate_set_timelines(self):
         rstl1 = ReplicateSetTimeline(
             well='A1A2',
