@@ -65,6 +65,8 @@ def main():
 
         final_rows = [["filename", "well", "Km", "kcat", "kcat/Km"]] + [x for xs in files_rows for x in xs]
 
+        # TODO also write a file with absorbance
+        # TODO also output plots of data with fit plots (using matplotlib)
         write_output(final_rows, args.output, mode='a')
 
     else:
