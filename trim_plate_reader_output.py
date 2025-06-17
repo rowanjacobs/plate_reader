@@ -8,7 +8,7 @@ def trim_plate_reader_output(lines):
     data_end_offset = 0
 
     for i, line in enumerate(lines):
-        if line.startswith('Time\tT°'):
+        if line.startswith('Time\tT'):
             data_start = i
             break
 
