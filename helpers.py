@@ -93,12 +93,12 @@ mock_data_overflow = [
 
 mock_data_replicate_sets = [
     ReplicateSetTimeline('A1A2B1B2', [
-        ReplicateSet(time=0, well='A1A2B1B2', data_points=[1.691, 1.736, 2.069, 2.065]),
-        ReplicateSet(time=12, well='A1A2B1B2', data_points=[1.791, 1.836, 2.169, 2.165])
+        ReplicateSet(time=0, well='A1A2B1B2', data_points=[0.0, 1.736-1.691, 2.069-1.691, 2.065-1.691]),
+        ReplicateSet(time=12, well='A1A2B1B2', data_points=[1.791-1.691, 1.836-1.691, 2.169-1.691, 2.165-1.691])
     ]),
     ReplicateSetTimeline('A3A4B3B4', [
-        ReplicateSet(time=0, well='A3A4B3B4', data_points=[1.787, 1.837, 1.907, 1.480]),
-        ReplicateSet(time=12, well='A3A4B3B4', data_points=[1.887, 1.937, 2.007, 1.580])
+        ReplicateSet(time=0, well='A3A4B3B4', data_points=[1.787-1.480, 1.837-1.480, 1.907-1.480, 0.0]),
+        ReplicateSet(time=12, well='A3A4B3B4', data_points=[1.887-1.480, 1.937-1.480, 2.007-1.480, 1.580-1.480])
     ])
 ]
 
