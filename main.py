@@ -5,6 +5,9 @@ import read_tsv
 import replicate_set_timeline
 import trim_plate_reader_output
 
+from os import listdir
+from os.path import isfile, join, basename
+
 
 def process_file(lines, single_line=False, filename=''):
     data_lines, _ = trim_plate_reader_output.trim_plate_reader_output(lines)
@@ -38,6 +41,15 @@ def read_plate_file(input_file):
     return lines
 
 
+def output_plots(data, output):
+    if isfile(output):
+        # TODO get parent dir of output filename
+        raise ValueError(f"Output '{output}' is not a directory")
+    for rstl in data:
+        fig = rstl.plot()
+        fig.savefig(join(output, rstl.well))
+
+
 def main():
     # Set up the argument parser
     parser = argparse.ArgumentParser(description="Process a plate reader data file into absorbance data")
@@ -49,13 +61,14 @@ def main():
                         help="Set this flag to disable grouping wells into replicate sets.")
     parser.add_argument('--megamix', action='store_true',
                         help="Set this flag to process *all* input files in input directory")
+    parser.add_argument('--plot-data', action='store_true',
+                        help="Set this flag to output plots of raw data and fits for each well group, in a separate "
+                             "file in the output directory")
 
     # Parse the arguments
     args = parser.parse_args()
 
     if args.megamix:
-        from os import listdir
-        from os.path import isfile, join
         input_files = [f for f in listdir(args.input) if isfile(join(args.input, f)) and f != '.DS_Store']
 
         files_data = {f: process_file(read_plate_file(join(args.input, f)), args.single_line, filename=f) for f in
@@ -79,7 +92,13 @@ def main():
 
         data_rows = [["well", "Km", "kcat", "kcat/Km"]] + data_rows
 
-        write_output(data_rows, args.output)
+        output_file = args.output
+        if not isfile(args.output):
+            output_file = join(args.output, basename(args.input).replace('.txt', '.csv'))
+        write_output(data_rows, output_file)
+
+        if args.plot_data:
+            output_plots(data, args.output)
 
 
 if __name__ == '__main__':

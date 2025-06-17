@@ -128,3 +128,8 @@ mock_statistics = {
     't at Max V': [24, 53 * 60 + 12, 24, 60 + 24],
     'Lagtime': [30 * 60 + 17, 44]
 }
+
+
+def average_and_apply_beers_law(data):
+    import absorbance
+    return sum(data) / (len(data) * absorbance.extinction * absorbance.path_length)
