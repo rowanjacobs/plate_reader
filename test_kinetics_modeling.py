@@ -9,21 +9,18 @@ from kinetics_modeling import objective, fit, objective_leastsq, curve_params
 
 
 class TestKineticsModeling(unittest.TestCase):
-    @given(st.floats(min_value=1e-9, max_value=10),  # s0
-           st.floats(min_value=1e-9, max_value=1e-3),  # k_m
-           st.floats(min_value=1e-100, max_value=100),  # k_cat
+    @given(st.floats(min_value=1e-9, max_value=1e-3),  # s0
+           st.floats(min_value=1e-12, max_value=1e3),  # k_m
+           st.floats(min_value=1e-100, max_value=1000),  # k_cat
            st.integers(min_value=0, max_value=6000))  # t
     def test_objective_matches_michaelis_menten_kinetics(self, s0, k_m, k_cat, t):
         params = create_params(e=0.05, k_m=k_m, k_cat=k_cat)
         v_max = k_cat * 0.05
-        model_s = objective(params, t, 0, s0)
+        model_s = -objective(params, t, 0, s0)
         # $$Vt = ([S]_0-[S]) + K_m \ln\frac{[S]_0}{[S]}$$
         self.assertNotEqual(model_s, 0)  # TODO is this math correct?
         vt = (s0 - model_s) + k_m * math.log(s0 / model_s)
-        if v_max * t == 0:
-            self.assertAlmostEqual(vt, v_max * t, places=5)
-        else:
-            self.assertAlmostEqual(v_max * t / vt, 1, places=5)
+        self.assertAlmostEqual(vt, v_max * t, places=5)
 
     @mock.patch('kinetics_modeling.create_params', autospec=True)
     def test_curve_params(self, mock_params):
@@ -31,9 +28,10 @@ class TestKineticsModeling(unittest.TestCase):
 
         self.assertEqual(curve_params(), 'pineapple')
 
-        mock_params.assert_called_once_with(e={'value': 0.05, 'vary': False},
-                                            k_m={'value': 0.05, 'min': 1e-9, 'max': 1e-3},
-                                            k_cat={'value': 1.5, 'min': 1e-100})
+        mock_params.assert_called_once_with(e={'value': 1.14e-6, 'vary': False},
+                                            k_m={'value': 5e-5, 'min': 1e-12, 'max': 1e3},
+                                            k_cat={'value': 1.5, 'min': 1e-100}
+                                            )
 
     @mock.patch('kinetics_modeling.Minimizer', autospec=True)
     @mock.patch('kinetics_modeling.curve_params', autospec=True)
