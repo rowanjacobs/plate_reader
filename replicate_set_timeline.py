@@ -35,6 +35,17 @@ class ReplicateSetTimeline:
         fig, ax = plt.subplots()
         x, y = self.plot_data()
         ax.plot(x, y, '.:b')
+
+        params = self.fit()
+        k_m = params['k_m']
+        k_cat = params['k_cat']
+        v_max = k_cat * e0
+        s0 = max(y) - min(y)
+        s_min = min(y)
+
+        y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
+        ax.plot(x, y2, 'g')
+
         return fig
 
     def normalize(self):
