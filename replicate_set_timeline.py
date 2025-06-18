@@ -41,10 +41,18 @@ class ReplicateSetTimeline:
         times = [rs.time for rs in self.replicate_sets]
         return times, data
 
-    def plot(self):
+    def plot(self, title_override=None):
         fig, ax = plt.subplots()
         x, y = self.plot_data()
         ax.plot(x, y, '.:b')
+
+        ax.set_xlabel('Time (s)')
+        ax.set_ylabel('[NADH] (M)')
+        if title_override:
+            title = title_override
+        else:
+            title = self.well
+        ax.set_title(title)
 
         self.fit()
         k_m = self.k_m
@@ -52,6 +60,8 @@ class ReplicateSetTimeline:
         v_max = k_cat * e0
         s0 = max(y) - min(y)
         s_min = min(y)
+
+        ax.text(300, max(y)*.9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
 
         y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
         ax.plot(x, y2, 'g')

@@ -44,7 +44,7 @@ def read_plate_file(input_file):
 
 
 def output_plot(rstl, dirname, filename_prefix=''):
-    fig = rstl.plot()
+    fig = rstl.plot(title_override=f'{filename_prefix} {rstl.well}')
     fig.savefig(join(dirname, filename_prefix + rstl.well + '.png'))
     plt.close(fig)
 
