@@ -8,6 +8,8 @@ import trim_plate_reader_output
 from os import listdir
 from os.path import isfile, join, basename
 
+import matplotlib.pyplot as plt
+
 
 def process_file(lines, single_line=False, filename=''):
     data_lines, _ = trim_plate_reader_output.trim_plate_reader_output(lines)
@@ -41,13 +43,10 @@ def read_plate_file(input_file):
     return lines
 
 
-def output_plots(data, output):
-    if isfile(output):
-        # TODO get parent dir of output filename
-        raise ValueError(f"Output '{output}' is not a directory")
-    for rstl in data:
-        fig = rstl.plot()
-        fig.savefig(join(output, rstl.well))
+def output_plot(rstl, dirname, filename_prefix=''):
+    fig = rstl.plot()
+    fig.savefig(join(dirname, filename_prefix + rstl.well + '.png'))
+    plt.close(fig)
 
 
 def main():
@@ -69,6 +68,10 @@ def main():
     args = parser.parse_args()
 
     if args.megamix:
+        if isfile(args.output):
+            # TODO get parent dir of output filename
+            raise ValueError(f"Output '{args.output}' is not a directory")
+
         input_files = [f for f in listdir(args.input) if isfile(join(args.input, f)) and f != '.DS_Store']
 
         files_data = {f: process_file(read_plate_file(join(args.input, f)), args.single_line, filename=f) for f in
@@ -79,8 +82,13 @@ def main():
         final_rows = [["filename", "well", "Km", "kcat", "kcat/Km"]] + [x for xs in files_rows for x in xs]
 
         # TODO also write a file with absorbance
-        # TODO also output plots of data with fit plots (using matplotlib)
-        write_output(final_rows, args.output, mode='a')
+        write_output(final_rows, join(args.output, 'all_fits.csv'), mode='a')
+
+        if args.plot_data:
+            for f in input_files:
+                for rstl in files_data[f]:
+                    output_plot(rstl, args.output, filename_prefix=f.removesuffix('.txt')+' ')
+
 
     else:
         lines = read_plate_file(args.input)
@@ -98,7 +106,11 @@ def main():
         write_output(data_rows, output_file)
 
         if args.plot_data:
-            output_plots(data, args.output)
+            if isfile(args.output):
+                # TODO get parent dir of output filename
+                raise ValueError(f"Output '{args.output}' is not a directory")
+            for rstl in data:
+                output_plot(rstl, args.output)
 
 
 if __name__ == '__main__':
