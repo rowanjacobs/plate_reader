@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 class ReplicateSetTimeline:
     well: str
     replicate_sets: list[ReplicateSet]
+    k_m = 0
+    k_cat = 0
+    __has_fit = False
 
     def join(self, rstl):
         # TODO check that you are joining sets with the same time
@@ -19,11 +22,18 @@ class ReplicateSetTimeline:
         return ReplicateSetTimeline(well=self.well + rstl.well, replicate_sets=joined_rs)
 
     def fit(self):
+        if self.__has_fit:
+            return {'k_m': self.k_m, 'k_cat': self.k_cat}
+
         data = [rs.mean_concentration() for rs in self.replicate_sets]
         times = [rs.time for rs in self.replicate_sets]
         result = fit(times, data)
         # TODO check success status
         # TODO write tests
+        self.k_m = result.params['k_m'].value.item()
+        self.k_cat = result.params['k_cat'].value.item()
+        self.__has_fit = True
+
         return result.params
 
     def plot_data(self):
@@ -36,9 +46,9 @@ class ReplicateSetTimeline:
         x, y = self.plot_data()
         ax.plot(x, y, '.:b')
 
-        params = self.fit()
-        k_m = params['k_m']
-        k_cat = params['k_cat']
+        self.fit()
+        k_m = self.k_m
+        k_cat = self.k_cat
         v_max = k_cat * e0
         s0 = max(y) - min(y)
         s_min = min(y)
@@ -101,9 +111,9 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
         k_m = params['k_m'].value.item()
         k_cat = params['k_cat'].value.item()
         if filename != '':
-            table.append([filename, well, k_m, k_cat, k_cat/k_m])
+            table.append([filename, well, k_m, k_cat, k_cat / k_m])
         else:
-            table.append([well, k_m, k_cat, k_cat/k_m])
+            table.append([well, k_m, k_cat, k_cat / k_m])
 
     return table
 
