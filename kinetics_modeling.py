@@ -7,6 +7,8 @@ from numpy import log, exp
 # define objective function: returns the array to be minimized
 from scipy.special import lambertw
 
+e0 = 1.14e-6  # see Benchling for [E]_0
+
 
 def objective(params: Parameters, t: int, data: float, s0: float):
     e = params['e']
@@ -14,11 +16,11 @@ def objective(params: Parameters, t: int, data: float, s0: float):
     k_cat = params['k_cat']
     v_max = k_cat * e
     # approximation of k_m * lambertw(s0 / k_m * exp(s0 / k_m - (v_max * t) / k_m)))
-    model = k_m * _approx_lambert_w(s0, k_m, v_max, t)
+    model = k_m * approx_lambert_w(s0, k_m, v_max, t)
     return data - model
 
 
-def _approx_lambert_w(s0: float, k_m: float, v_max: float, t: int):
+def approx_lambert_w(s0: float, k_m: float, v_max: float, t: int):
     log_term = log(s0 / k_m) + (s0 / k_m) - (v_max * t / k_m)
     if math.isnan(log_term):
         # TODO proper error handling
@@ -39,7 +41,7 @@ def objective_leastsq(params: Parameters, t: List[int], data: List[float]):
 
 
 def curve_params():
-    return create_params(e={'value': 1.14e-6, 'vary': False},  # see Benchling for [E]_0
+    return create_params(e={'value': e0, 'vary': False},
                          k_m={'value': 5e-5, 'min': 1e-12, 'max': 1e3},  # 50 µM
                          k_cat={'value': 1.5, 'min': 1e-100}
                          )

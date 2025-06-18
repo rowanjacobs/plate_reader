@@ -1,7 +1,7 @@
 import dataclasses
 from typing import List
 
-from kinetics_modeling import fit
+from kinetics_modeling import fit, approx_lambert_w, e0
 from replicate_set import ReplicateSet
 
 import matplotlib.pyplot as plt
