@@ -11,7 +11,7 @@ def time_in_seconds(time_str):
 
 
 def float_or_overflow(x):
-    return 5.0 if x == 'OVRFLW' else float(x)
+    return 5.0 if x == 'OVRFLW' or x == 'OVRFLW\n' else float(x)
 
 
 def data_into_replicate_set_timelines(data_lines, filename=''):

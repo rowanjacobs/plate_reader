@@ -21,7 +21,11 @@ def objective(params: Parameters, t: int, data: float, s0: float):
 
 
 def approx_lambert_w(s0: float, k_m: float, v_max: float, t: int):
-    log_term = log(s0 / k_m) + (s0 / k_m) - (v_max * t / k_m)
+    try:
+        log_term = log(s0 / k_m) + (s0 / k_m) - (v_max * t / k_m)
+    except RuntimeWarning:
+        # TODO proper error handling
+        raise ValueError(f'Got div by 0 for objective function at s0 {s0}, k_m {k_m}, v_max {v_max}, t {t}')
     if math.isnan(log_term):
         # TODO proper error handling
         raise ValueError(f'Got NaN value for objective function at s0 {s0}, k_m {k_m}, v_max {v_max}, t {t}')

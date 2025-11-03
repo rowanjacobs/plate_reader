@@ -18,6 +18,8 @@ def grubbs_test(data, alpha=0.05):
 
     data_mean = statistics.mean(data)
     data_stdev = statistics.stdev(data)
+    if data_stdev == 0:
+        return -1, 0.0
 
     max_diff = max(abs(x - data_mean) for x in data)
     G = max_diff / data_stdev
