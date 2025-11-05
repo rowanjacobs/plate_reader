@@ -1,6 +1,7 @@
 import argparse
 import csv
 
+import metabolite_naming
 import read_tsv
 import replicate_set_timeline
 import trim_plate_reader_output
@@ -43,9 +44,9 @@ def read_plate_file(input_file):
     return lines
 
 
-def output_plot(rstl, dirname, filename_prefix=''):
-    fig = rstl.plot(title_override=f'{filename_prefix} {rstl.well}')
-    fig.savefig(join(dirname, filename_prefix + rstl.well + '.png'))
+def output_plot(rstl, dirname, title=''):
+    fig = rstl.plot(title_override=f'{title}')
+    fig.savefig(join(dirname, title + '.png'))
     plt.close(fig)
 
 
@@ -87,7 +88,12 @@ def main():
         if args.plot_data:
             for f in input_files:
                 for rstl in files_data[f]:
-                    output_plot(rstl, args.output, filename_prefix=f.removesuffix('.txt')+' ')
+                    filename_prefix = f.removesuffix('.txt')
+                    metabolite = metabolite_naming.find_metabolite(filename_prefix, rstl.well)
+                    if metabolite is not None:
+                        metabolite = metabolite.replace('/', '-')
+                        output_plot(rstl, args.output, title=metabolite + ' ' + rstl.well)
+                    output_plot(rstl, args.output, title=filename_prefix + ' ' + rstl.well)
 
 
     else:

@@ -1,6 +1,7 @@
 import dataclasses
 from typing import List
 
+import metabolite_naming
 from kinetics_modeling import fit, approx_lambert_w, e0
 from replicate_set import ReplicateSet
 
@@ -121,7 +122,8 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
         k_m = params['k_m'].value.item()
         k_cat = params['k_cat'].value.item()
         if filename != '':
-            table.append([filename, well, k_m, k_cat, k_cat / k_m])
+            metabolite = metabolite_naming.find_metabolite(filename, well)
+            table.append([metabolite, filename, well, k_m, k_cat, k_cat / k_m])
         else:
             table.append([well, k_m, k_cat, k_cat / k_m])
 
