@@ -17,7 +17,10 @@ class TestReadTsv(unittest.TestCase):
     def test_data_into_replicate_set_timelines_handles_discontinuous_wells(self):
         rstls = data_into_replicate_set_timelines(helpers.mock_discontinuous_lines.splitlines())
         self.assertEqual('A3A4B3B4', rstls[0].well)
-        self.assertEqual('A3A4B3B4', rstls[0].replicate_sets[0].well)
+        custom_matchers.assert_dicts_with_floats_almost_equal(self,
+                                                              {'A3': 1.498 - 1.29, 'A4': 1.705 - 1.29,
+                                                               'B3': 1.32 - 1.29, 'B4': 1.919 - 1.29},
+                                                              rstls[0].replicate_sets[0].data_points)
 
     def test_data_into_replicate_set_timelines_tries_to_group_odd_numbers_of_wells(self):
         rstls = data_into_replicate_set_timelines(helpers.mock_odd_number_rows_lines.splitlines())

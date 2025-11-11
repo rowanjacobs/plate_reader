@@ -72,7 +72,7 @@ def __data_into_replicate_set_timelines(data_lines, single_line=False, filename=
                         print(f"Value error for line {i}: could not parse value '{split[0]}' as time")
                     break
                 data = float_or_overflow(split[wg[well]])
-                rs = ReplicateSet(time=time, data_points=[data], well=well)
+                rs = ReplicateSet(time=time, data_points={well: data})
                 rstl.replicate_sets.append(rs)
             wg_rstls.append(rstl)
         wg_rstl = wg_rstls[0]

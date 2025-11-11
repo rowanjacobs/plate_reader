@@ -70,10 +70,10 @@ class ReplicateSetTimeline:
         return fig
 
     def normalize(self):
-        raw_data = [s for rs in self.replicate_sets for s in rs.data_points]
+        raw_data = [s for rs in self.replicate_sets for _, s in rs.data_points.items()]
         s0 = min(raw_data)
         for rs in self.replicate_sets:
-            rs.data_points = [s - s0 for s in rs.data_points]
+            rs.data_points = {k: s - s0 for k, s in rs.data_points.items()}
 
 
 def group_and_join_replicate_set_timelines(data):
