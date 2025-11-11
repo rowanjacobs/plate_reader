@@ -57,8 +57,7 @@ def assert_replicate_sets_almost_equal(test_case, rs1: ReplicateSet, rs2: Replic
     Assert that two ReplicateSets are approximately equal.
     """
     test_case.assertEqual(rs1.time, rs2.time)
-    test_case.assertEqual(rs1.well, rs2.well)
-    assert_arrays_almost_equal(test_case, rs1.data_points, rs2.data_points)
+    assert_dicts_with_floats_almost_equal(test_case, rs1.data_points, rs2.data_points)
 
 
 def assert_replicate_set_timelines_almost_equal(test_case: unittest.TestCase, rstl1: ReplicateSetTimeline,
@@ -69,6 +68,33 @@ def assert_replicate_set_timelines_almost_equal(test_case: unittest.TestCase, rs
     test_case.assertEqual(rstl1.well, rstl2.well)
     for i, rs in enumerate(rstl1.replicate_sets):
         assert_replicate_sets_almost_equal(test_case, rs, rstl2.replicate_sets[i])
+
+
+def assert_dicts_with_floats_almost_equal(test_case, dict1, dict2, rel_tol=1e-9, abs_tol=0.0):
+    """
+    Custom matcher to assert that two dictionaries with string keys and float  values are approximately equal.
+
+    Args:
+        test_case: The unittest.TestCase instance.
+        dict1: The first dictionary to compare (with string keys and floats as values).
+        dict2: The second dictionary to compare (with string keys and floats as values).
+        rel_tol: Relative tolerance for floating-point comparison.
+        abs_tol: Absolute tolerance for floating-point comparison.
+
+    Raises:
+        AssertionError: If the dictionaries are not approximately equal.
+    """
+    # Ensure the dictionaries have the same keys
+    if dict1.keys() != dict2.keys():
+        test_case.fail(f"Dictionaries have different keys: {dict1.keys()} != {dict2.keys()}")
+
+    # Compare the values for each key using the reused array comparison
+    for key in dict1:
+        f1 = dict1[key]
+        f2 = dict2[key]
+
+        # Use the assert_arrays_almost_equal function to compare the arrays
+        assert_almost_equal(test_case, f1, f2, rel_tol=rel_tol, abs_tol=abs_tol)
 
 
 def assert_dicts_with_float_arrays_almost_equal(test_case, dict1, dict2, rel_tol=1e-9, abs_tol=0.0):
