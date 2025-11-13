@@ -39,10 +39,6 @@ class TestReplicateSetTimeline(unittest.TestCase):
         rstl.normalize()
         custom_matchers.assert_replicate_set_timelines_almost_equal(self, rstl, rstl_expected)
 
-    def test_bundle_timelines(self):
-        # TODO fix data model and return here
-        pass
-
     def test_join_replicate_set_timelines(self):
         rstl2 = ReplicateSetTimeline(
             well='B1B2',
