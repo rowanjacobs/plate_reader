@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 class ReplicateSetTimeline:
     well: str
     replicate_sets: list[ReplicateSet]
+    timelines: dict[str, list[float]] = dataclasses.field(default_factory=dict)
     k_m = 0
     k_cat = 0
     __has_fit = False
@@ -74,6 +75,20 @@ class ReplicateSetTimeline:
         s0 = min(raw_data)
         for rs in self.replicate_sets:
             rs.data_points = {k: s - s0 for k, s in rs.data_points.items()}
+
+    def bundle(self):
+        wells = {k for rs in self.replicate_sets for k, _ in rs.data_points.items()}
+        timeline = {k: [] for k in wells}
+
+        for well in wells:
+            for rs in self.replicate_sets:
+                try:
+                    timeline[well].append(rs.data_points[well])
+                except KeyError:
+                    continue
+
+        self.timelines = timeline
+
 
 
 def group_and_join_replicate_set_timelines(data):

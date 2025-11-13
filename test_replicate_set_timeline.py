@@ -61,3 +61,10 @@ class TestReplicateSetTimeline(unittest.TestCase):
             ]
         )
         custom_matchers.assert_replicate_set_timelines_almost_equal(self, self.rstl1.join(rstl2), rstl_expected)
+
+    def test_bundle(self):
+        self.rstl1.bundle()
+
+        custom_matchers.assert_dicts_with_float_arrays_almost_equal(self, self.rstl1.timelines,
+                                                                    {'A1': [0.123, 1.123, 2.123],
+                                                                     'A2': [0.345, 1.345, 2.345]})
