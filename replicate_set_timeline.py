@@ -2,6 +2,8 @@ import dataclasses
 import warnings
 from typing import List
 
+import numpy
+
 import metabolite_naming
 from absorbance import path_length, extinction
 from kinetics_modeling import fit, approx_lambert_w, e0
@@ -19,6 +21,8 @@ class ReplicateSetTimeline:
     k_cat = 0
     bundle_k_m = {}
     bundle_k_cat = {}
+    fit_result = None
+    r_squared = 0.0
     __has_fit = False
 
     def join(self, rstl):
@@ -36,8 +40,10 @@ class ReplicateSetTimeline:
         result = fit(times, data)
         # TODO check success status
         # TODO write tests
+        self.fit_result = result
         self.k_m = result.params['k_m'].value.item()
         self.k_cat = result.params['k_cat'].value.item()
+        self.r_squared = 1 - result.residual.var() / numpy.var(data)
         self.__has_fit = True
 
         return result.params
@@ -104,8 +110,10 @@ class ReplicateSetTimeline:
         v_max = k_cat * e0
         s0 = max(y) - min(y)
         s_min = min(y)
+        r_squared = self.r_squared
 
         ax.text(300, max(y)*.9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
+        ax.text(300, max(y)*.5, f'$R^2={r_squared}$')
 
         y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
         ax.plot(x, y2, 'g')
