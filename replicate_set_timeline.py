@@ -1,4 +1,5 @@
 import dataclasses
+import warnings
 from typing import List
 
 import metabolite_naming
@@ -73,17 +74,6 @@ class ReplicateSetTimeline:
 
         return fig
 
-    def bundle_fit(self):
-        self.bundle()
-
-        data = {k: list(map(lambda y: y / (path_length * extinction), v)) for k, v in self.timelines.items()}
-        times = [rs.time for rs in self.replicate_sets]
-        results = {k: fit(times, data[k]) for k, _ in self.timelines.items()}
-        # TODO check success status
-        # TODO write tests
-        self.bundle_k_m = {k: v.params['k_m'].value.item() for k, v in results.items()}
-        self.bundle_k_cat = {k: v.params['k_cat'].value.item() for k, v in results.items()}
-
     def bundle_plot_data(self):
         self.bundle()
         data = {k: list(map(lambda y: y / (path_length * extinction), v)) for k, v in self.timelines.items()}
@@ -102,27 +92,28 @@ class ReplicateSetTimeline:
             title = self.well
         ax.set_title(title)
 
-        self.bundle_fit()
-
         x, ys = self.bundle_plot_data()
         for i, (k, v) in enumerate(ys.items()):
             colormap[k] = colors[i]
             ax.plot(x, v, '.:' + colors[i])
 
-            k_m = self.bundle_k_m[k]
-            k_cat = self.bundle_k_cat[k]
-            v_max = k_cat * e0
-            s0 = max(v) - min(v)
-            s_min = min(v)
+        y = ys[sorted(ys.keys())[0]]
+        self.fit()
+        k_m = self.k_m
+        k_cat = self.k_cat
+        v_max = k_cat * e0
+        s0 = max(y) - min(y)
+        s_min = min(y)
 
-            ax.text(300, max(v)*.9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
+        ax.text(300, max(y)*.9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
 
-            y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
-            ax.plot(x, y2, colors[i])
+        y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
+        ax.plot(x, y2, 'g')
 
         return fig
 
     def normalize(self):
+        warnings.warn("Warning: this normalization function is deprecated. It may not do what you want to do")
         raw_data = [s for rs in self.replicate_sets for _, s in rs.data_points.items()]
         s0 = min(raw_data)
         for rs in self.replicate_sets:
@@ -133,17 +124,21 @@ class ReplicateSetTimeline:
             return
 
         wells = {k for rs in self.replicate_sets for k, _ in rs.data_points.items()}
-        timeline = {k: [] for k in wells}
+        timelines = {k: [] for k in wells}
 
         for well in wells:
             for rs in self.replicate_sets:
                 try:
-                    timeline[well].append(rs.data_points[well])
+                    timelines[well].append(rs.data_points[well])
                 except KeyError:
                     continue
 
-        self.timelines = timeline
+        for k, tl in timelines.items():
+            min_abs = min(tl)
+            normalized_tl = [x - min_abs for x in tl]
+            timelines[k] = normalized_tl
 
+        self.timelines = timelines
 
 
 def group_and_join_replicate_set_timelines(data):
