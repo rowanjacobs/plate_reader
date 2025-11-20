@@ -133,3 +133,8 @@ mock_statistics = {
 def average_and_apply_beers_law(data):
     import absorbance
     return sum(data) / (len(data) * absorbance.extinction * absorbance.path_length)
+
+
+def apply_beers_law(data):
+    import absorbance
+    return [y / (absorbance.extinction * absorbance.path_length) for y in data]
