@@ -44,8 +44,11 @@ def read_plate_file(input_file):
     return lines
 
 
-def output_plot(rstl, dirname, title=''):
-    fig = rstl.plot(title_override=f'{title}')
+def output_plot(rstl, dirname, unbundle=False, title=''):
+    if unbundle:
+        fig = rstl.bundle_plot(title_override=f'{title}')
+    else:
+        fig = rstl.plot(title_override=f'{title}')
     fig.savefig(join(dirname, title + '.png'))
     plt.close(fig)
 
@@ -64,6 +67,8 @@ def main():
     parser.add_argument('--plot-data', action='store_true',
                         help="Set this flag to output plots of raw data and fits for each well group, in a separate "
                              "file in the output directory")
+    parser.add_argument('--unbundle', action='store_true',
+                        help="Set this flag to display each well separately per plot")
 
     # Parse the arguments
     args = parser.parse_args()
@@ -92,8 +97,8 @@ def main():
                     metabolite = metabolite_naming.find_metabolite(filename_prefix, rstl.well)
                     if metabolite is not None:
                         metabolite = metabolite.replace('/', '-')
-                        output_plot(rstl, args.output, title=metabolite + ' ' + rstl.well)
-                    output_plot(rstl, args.output, title=filename_prefix + ' ' + rstl.well)
+                        output_plot(rstl, args.output, unbundle=args.unbundle, title=metabolite + ' ' + rstl.well)
+                    output_plot(rstl, args.output, unbundle=args.unbundle, title=filename_prefix + ' ' + rstl.well)
 
 
     else:

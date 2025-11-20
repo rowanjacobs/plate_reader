@@ -2,6 +2,7 @@ import dataclasses
 from typing import List
 
 import metabolite_naming
+from absorbance import path_length, extinction
 from kinetics_modeling import fit, approx_lambert_w, e0
 from replicate_set import ReplicateSet
 
@@ -15,6 +16,8 @@ class ReplicateSetTimeline:
     timelines: dict[str, list[float]] = dataclasses.field(default_factory=dict)
     k_m = 0
     k_cat = 0
+    bundle_k_m = {}
+    bundle_k_cat = {}
     __has_fit = False
 
     def join(self, rstl):
@@ -70,6 +73,55 @@ class ReplicateSetTimeline:
 
         return fig
 
+    def bundle_fit(self):
+        self.bundle()
+
+        data = {k: list(map(lambda y: y / (path_length * extinction), v)) for k, v in self.timelines.items()}
+        times = [rs.time for rs in self.replicate_sets]
+        results = {k: fit(times, data[k]) for k, _ in self.timelines.items()}
+        # TODO check success status
+        # TODO write tests
+        self.bundle_k_m = {k: v.params['k_m'].value.item() for k, v in results.items()}
+        self.bundle_k_cat = {k: v.params['k_cat'].value.item() for k, v in results.items()}
+
+    def bundle_plot_data(self):
+        self.bundle()
+        data = {k: list(map(lambda y: y / (path_length * extinction), v)) for k, v in self.timelines.items()}
+        times = [rs.time for rs in self.replicate_sets]
+        return times, data
+
+    def bundle_plot(self, title_override=None):
+        colors = ['b', 'r', 'm', 'c', 'y', 'g', 'k']
+        colormap = {}
+        fig, ax = plt.subplots()
+        ax.set_xlabel('Time (s)')
+        ax.set_ylabel('[NADH] (M)')
+        if title_override:
+            title = title_override
+        else:
+            title = self.well
+        ax.set_title(title)
+
+        self.bundle_fit()
+
+        x, ys = self.bundle_plot_data()
+        for i, (k, v) in enumerate(ys.items()):
+            colormap[k] = colors[i]
+            ax.plot(x, v, '.:' + colors[i])
+
+            k_m = self.bundle_k_m[k]
+            k_cat = self.bundle_k_cat[k]
+            v_max = k_cat * e0
+            s0 = max(v) - min(v)
+            s_min = min(v)
+
+            ax.text(300, max(v)*.9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
+
+            y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
+            ax.plot(x, y2, colors[i])
+
+        return fig
+
     def normalize(self):
         raw_data = [s for rs in self.replicate_sets for _, s in rs.data_points.items()]
         s0 = min(raw_data)
@@ -77,6 +129,9 @@ class ReplicateSetTimeline:
             rs.data_points = {k: s - s0 for k, s in rs.data_points.items()}
 
     def bundle(self):
+        if len(self.timelines.items()) > 0:
+            return
+
         wells = {k for rs in self.replicate_sets for k, _ in rs.data_points.items()}
         timeline = {k: [] for k in wells}
 
