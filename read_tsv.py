@@ -78,6 +78,6 @@ def __data_into_replicate_set_timelines(data_lines, single_line=False, filename=
         wg_rstl = wg_rstls[0]
         for rstl in wg_rstls[1:]:
             wg_rstl = wg_rstl.join(rstl)
-        wg_rstl.normalize()
+        # wg_rstl.normalize()
         rstls.append(wg_rstl)
     return rstls
