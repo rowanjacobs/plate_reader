@@ -19,8 +19,6 @@ class ReplicateSetTimeline:
     timelines: dict[str, list[float]] = dataclasses.field(default_factory=dict)
     k_m = 0
     k_cat = 0
-    bundle_k_m = {}
-    bundle_k_cat = {}
     fit_result = None
     r_squared = 0.0
     __has_fit = False
