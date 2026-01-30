@@ -85,7 +85,8 @@ def main():
 
         files_rows = [replicate_set_timeline.generate_fit_table(files_data[f], f) for f in files_data]
 
-        final_rows = [["filename", "well", "Km", "kcat", "kcat/Km"]] + [x for xs in files_rows for x in xs]
+        final_rows = [["metabolite", "filename", "well", "Km", "kcat", "kcat/Km", "R^2"]] + \
+                     [x for xs in files_rows for x in xs]
 
         # TODO also write a file with absorbance
         write_output(final_rows, join(args.output, 'all_fits.csv'), mode='a')

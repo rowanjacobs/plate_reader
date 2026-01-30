@@ -182,10 +182,12 @@ def group_and_join_replicate_set_timelines(data):
 
 def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
     fits = {}
+    r_squareds = {}
     for rstl in rstls:
         # TODO catch errors in fitting
         params = rstl.fit()
         fits[rstl.well] = params
+        r_squareds[rstl.well] = rstl.r_squared
 
     fits_sorted = sorted(list(fits.keys()))
 
@@ -194,11 +196,12 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
         params = fits[well]
         k_m = params['k_m'].value.item()
         k_cat = params['k_cat'].value.item()
+        r_squared = r_squareds[well]
         if filename != '':
             metabolite = metabolite_naming.find_metabolite(filename, well)
-            table.append([metabolite, filename, well, k_m, k_cat, k_cat / k_m])
+            table.append([metabolite, filename, well, k_m, k_cat, k_cat / k_m, r_squared])
         else:
-            table.append([well, k_m, k_cat, k_cat / k_m])
+            table.append([filename, well, k_m, k_cat, k_cat / k_m, r_squared])
 
     return table
 

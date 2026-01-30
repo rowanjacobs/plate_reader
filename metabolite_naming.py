@@ -2,7 +2,10 @@ import csv
 
 
 def find_metabolite(filename, well):
-    filename2 = filename + '.txt'
+    if filename.endswith('.txt'):
+        filename2 = filename
+    else:
+        filename2 = filename + '.txt'
     with open('filename-well-compounds.csv') as f:
         metabolites = csv.reader(f)
 
