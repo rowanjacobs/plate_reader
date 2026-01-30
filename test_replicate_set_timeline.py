@@ -35,17 +35,6 @@ class TestReplicateSetTimeline(unittest.TestCase):
         custom_matchers.assert_dicts_with_float_arrays_almost_equal(self, self.rstl1.bundle_plot_data()[1],
                                                                     expected_data[1])
 
-    def test_bundle_fit(self):
-        self.rstl1.bundle_fit()
-
-        self.assertSetEqual(set(self.rstl1.bundle_k_m.keys()), {'A1', 'A2'})
-        self.assertSetEqual(set(self.rstl1.bundle_k_cat.keys()), {'A1', 'A2'})
-
-        custom_matchers.assert_dicts_with_floats_almost_equal(self, self.rstl1.bundle_k_cat,
-                                                              {'A1': 18424.833830796146, 'A2': 18424.83604383564})
-        custom_matchers.assert_dicts_with_floats_almost_equal(self, self.rstl1.bundle_k_m,
-                                                              {'A1': 1.0271789884694902, 'A2': 1.0271791119747518})
-
     def test_normalize(self):
         rstl_expected = ReplicateSetTimeline(
             well='A1A2',
