@@ -84,7 +84,7 @@
 20250611 plate 1 ROW E and redo of 15&16 of row D.txt,I1I2J1J2,N-acetyldopamine
 20250507 rl rj screening wt gs plate 4 row F.txt,K13K14L13L14,Etiocholanolone
 20250611 plate 8 ROW H.txt,O10O9P10P9,α-Hydroxyglutaric acid (disodium)
-20250411 GS plate 9 row 5 RLRJ.txt,K19K20L19L20,B D-(-)-Lactic acid (sodium)
+20250411 GS plate 9 row 5 RLRJ.txt,K19K20L19L20,D-(-)-Lactic acid (sodium)
 20250611 plate 8 ROW C.txt,E7E8F7F8,D-Kynurenine
 260318 screening wt gs plate 10 row D rj rl.txt,G13G14H13H14,L-Homocysteine
 20250611 plate 8 ROW H.txt,O19O20P19P20,Itaconic acid
@@ -140,11 +140,11 @@
 250131 screening GS 15 RJ.txt,J1J2K1K2,Heparan Sulfate
 20250611 plate 8 ROW F.txt,K1K2L1L2,Creatine
 260318 screening wt gs plate 10 row H rj rl.txt,G11G12H11H12,DL-O-Phosphoserine
-20250611 plate 8 ROW A.txt,A15A16B15B16,A Phosphoenolpyruvic acid (tricyclohexylammoniu​m salt)
+20250611 plate 8 ROW A.txt,A15A16B15B16,Phosphoenolpyruvic acid (tricyclohexylammoniu​m salt)
 250131 screening GS 15 RJ.txt,J11J12K11K12,ATP (disodium salt hydrate)
 20250611 plate 8 ROW C.txt,E15E16F15F16,"(3S,4R,5S)-1,3,4,5,6-Pentahydroxyhexan-2-one"
 20250604 rl rj screening plate 6 redo row C.txt,E10E9F10F9,D-arabinose
-20250611 plate 1 ROW D.txt,G3G4H3H4,B L-Thyroxine (sodium)
+20250611 plate 1 ROW D.txt,G3G4H3H4,L-Thyroxine (sodium)
 20250606 rl rj screening plate 5 row G again.txt,G13G14H13H14,trans-Vaccenic acid
 250127 screening GS plate 11 RJ 6.txt,M3M4N3N4,Acetyl Coenzyme A (trisodium)
 20250611 plate 8 ROW A.txt,A19A20B19B20,L-Aspartic acid
@@ -209,7 +209,7 @@
 20250606 rl rj screening plate 5 row G again.txt,G1G2H1H2,"3,4-Dihydroxymandelic acid"
 250131 screening GS 15 RJ.txt,J5J6K5K6,Dihydroxyacetone phosphate (hemimagnesium hydrate)
 20250507 rl rj screening wt gs plate 4 row C.txt,E19E20F19F20,Quinolinic acid
-20250411 GS plate 9 row 2 RLRJ.txt,E1E2F1F2,A AICAR (phosphate)
+20250411 GS plate 9 row 2 RLRJ.txt,E1E2F1F2,AICAR (phosphate)
 20250611 plate 8 ROW H.txt,O3O4P3P4,"N2,N2-Dimethylguanosine"
 260318 screening wt gs plate 10 row H rj rl.txt,G21G22H21H22,L-Proline
 20250611 plate 1 ROW B.txt,C1C2D1D2,"5,6-Dihydrouridine"
@@ -224,7 +224,7 @@
 20250411 GS plate 9 row 5 RLRJ.txt,K1K2L1L2,Pristanic acid
 20250611 plate 1 ROW D.txt,G17G18H17H18,Taurocholic acid (sodium salt hydrate)
 20250606 rl rj screening plate 3 row E.txt,I19I20J19J20,2-Hydroxyphenylacetic acid
-20250411 GS plate 9 row 8 RLRJ.txt,K10K9L10L9,C L-Aspartic aicd (sodium)
+20250411 GS plate 9 row 8 RLRJ.txt,K10K9L10L9,L-Aspartic aicd (sodium)
 20250515 rl rj plate 2 row B.txt,C17C18D17D18,Biotin sulfone
 20250611 plate 1 ROW C.txt,E13E14F13F14,D-Mannose
 20250611 plate 1 ROW C.txt,E10E9F10F9,Eriodictyol
@@ -267,7 +267,7 @@
 20250611 plate 1 ROW B.txt,C10C9D10D9,"3,4,5-Trimethoxycinnamic acid"
 260318 screening wt gs plate 10 row E rj rl.txt,A15A16B15B16,trans-Aconitic acid
 260318 screening wt gs plate 10 row E rj rl.txt,A11A12B11B12,D-(+)-Trehalose dihydrate
-20250411 GS plate 9 row 4 RLRJ.txt,I5I6J5J6,C D-Ribose 5-phosphate (disodium dihydrate)
+20250411 GS plate 9 row 4 RLRJ.txt,I5I6J5J6,D-Ribose 5-phosphate (disodium dihydrate)
 20250611 plate 1 ROW D.txt,G5G6H5H6,2'-Deoxyadenosine monohydrate
 20250507 rl rj screening wt gs plate 4 row D.txt,G17G18H17H18,3-Indolepropionic acid
 20250611 plate 1 ROW E and redo of 15&16 of row D.txt,I5I6J5J6,3-Hydroxyphenylacetic acid
@@ -346,7 +346,7 @@
 20250606 rl rj screening plate 5 row h again.txt,I1I2J1J2,2'-O-Methyladenosine
 20250611 plate 1 ROW A.txt,A13A14B13B14,2-Hydroxycinnamic acid
 20250604 rl rj screening plate 6 redo row B.txt,C11C12D11D12,Vanillylmandelic acid
-250127 screening GS plate 11 RJ 6.txt,M11M12N11N12,D L-Aspartic aicd (disodium)
+250127 screening GS plate 11 RJ 6.txt,M11M12N11N12,L-Aspartic aicd (disodium)
 20250604 rl rj screening plate 6 redo row B.txt,C15C16D15D16,N-Acetyl-L-arginine
 20250606 rl rj screening gs - ctrl.txt,C19C20D19D20,CONTROL
 20250611 plate 1 ROW B.txt,C17C18D17D18,Kynurenic acid
@@ -417,7 +417,7 @@
 20250507 rl rj screening wt gs plate 4 row D.txt,G7G8H7H8,"N,N'-Diacetylchitobiose"
 20250606 rl rj screening plate 3 row E.txt,I7I8J7J8,sn-Glycero-3-phosphocholine
 20250604 rl rj screening plate 5 row C.txt,E1E2F1F2,Isorhamnetin
-20250604 rl rj screening plate 5 row F.txt,K13K14L13L14,A Tauroursodeoxycholate (sodium)
+20250604 rl rj screening plate 5 row F.txt,K13K14L13L14,Tauroursodeoxycholate (sodium)
 20250507 rl rj screening wt gs plate 4 row G.txt,M7M8N7N8,Hypoxanthine
 20250611 plate 1 ROW B.txt,C3C4D3D4,γ-Cyclodextrin
 20250604 rl rj screening plate 5 row E.txt,I15I16J15J16,Thiamine (hydrochloride)
@@ -444,7 +444,7 @@
 20250515 rl rj plate 2 row B.txt,C10C9D10D9,5-Hydroxyferulic acid
 260318 screening wt gs plate 10 row H rj rl.txt,G5G6H5H6,L-Arginine (hydrochloride)
 20250515 rl rj plate 2 row D.txt,I11I12J11J12,Vasopressin
-20250604 rl rj screening plate 5 row B.txt,C5C6D5D6,B Tauroursodeoxycholate (dihydrate)
+20250604 rl rj screening plate 5 row B.txt,C5C6D5D6,Tauroursodeoxycholate (dihydrate)
 20250611 plate 1 ROW A.txt,A17A18B17B18,trans-Cinnamic acid
 20250515 rl rj plate 2 row C.txt,G1G2H1H2,5-Methyluridine
 250130 screening GS rowB 1-16 RJ.txt,B13B14,
@@ -479,7 +479,7 @@
 20250604 rl rj screening plate 5 row C.txt,E19E20F19F20,4-Pyridoxic acid
 260318 screening wt gs plate 10 row E rj rl.txt,A13A14B13B14,Phosphonoacetic acid
 20250611 plate 1 ROW A.txt,A10A9B10B9,Xanthotoxol
-20250604 rl rj screening plate 6 redo row E.txt,I15I16J15J16,B trans-Urocanic acid
+20250604 rl rj screening plate 6 redo row E.txt,I15I16J15J16,trans-Urocanic acid
 20250507 rl rj screening wt gs plate 4 row A.txt,A3A4B3B4,Nicotinamide riboside (chloride)
 20250606 rl rj screening plate 3 row A.txt,A7A8B7B8,Squalene
 250130 screening GS rowB 1-16 RJ.txt,B11B12,
@@ -511,7 +511,7 @@
 20250606 rl rj screening plate 5 row h again.txt,I7I8J7J8,Cholic acid
 20250604 rl rj screening plate 5 row F.txt,K7K8L7L8,Melilotic acid
 20250611 plate 8 ROW H.txt,O5O6P5P6,L-Carnitine
-20250606 rl rj screening plate 3 row F.txt,K3K4L3L4,A Dinoprost (tromethamine salt)
+20250606 rl rj screening plate 3 row F.txt,K3K4L3L4,Dinoprost (tromethamine salt)
 20250604 rl rj screening plate 6 redo row D.txt,G1G2H1H2,Manninotriose
 260318 screening wt gs plate 10 row B rj rl.txt,C19C20D19D20,Guanosine 5'-diphosphate (disodium salt)
 20250604 rl rj screening plate 5 row D.txt,G3G4H3H4,3-Methyl-2-oxovaleric acid
@@ -628,7 +628,7 @@
 260318 screening wt gs plate 10 row B rj rl.txt,C15C16D15D16,Gluconate (sodium)
 20250606 rl rj screening plate 3 row F.txt,K15K16L15L16,H-Val-Tyr-OH
 250130 screening GS plate 13 rowA 1-16 RJ.txt,A10A9,Docosanoic acid
-20250604 rl rj screening plate 5 row F.txt,K10K9L10L9,A Norepinephrine (hydrochloride)
+20250604 rl rj screening plate 5 row F.txt,K10K9L10L9,Norepinephrine (hydrochloride)
 20250507 rl rj screening wt gs plate 4 row B.txt,C10C9D10D9,Choline (bitartrate)
 20250604 rl rj screening plate 6 redo row B.txt,C17C18D17D18,2'-Deoxyguanosine
 20250507 rl rj screening wt gs plate 4 row D.txt,G5G6H5H6,3-Hydroxyvaleric acid
@@ -672,7 +672,7 @@
 20250507 rl rj screening wt gs plate 4 row F.txt,K1K2L1L2,Guanosine
 20250604 rl rj screening plate 6 redo row A.txt,A1A2B1B2,L-5-Hydroxytryptophan
 20250515 rl rj plate 2 row G.txt,O5O6P5P6,L-Octanoylcarnitine
-250130 screening GS rowC plate 14-15 1-12 RJ RL.txt,C1C2,C D-Gluconic acid (potassium)
+250130 screening GS rowC plate 14-15 1-12 RJ RL.txt,C1C2,D-Gluconic acid (potassium)
 20250604 rl rj screening plate 5 row A.txt,A3A4B3B4,H-D-Trp-OH
 20250604 rl rj screening plate 6 redo row D.txt,G17G18H17H18,"Pentane-1,5-diamine (dihydrochloride)"
 20250604 rl rj screening plate 6 redo row H.txt,O7O8P7P8,D-Threitol
@@ -684,7 +684,7 @@
 20250604 rl rj screening plate 6 redo row B try 2.txt,E5E6F5F6,Indole
 20250606 rl rj screening plate 3 row A.txt,A3A4B3B4,Hydroxyphenyllactic acid
 20250604 rl rj screening plate 5 row A.txt,A19A20B19B20,α-Vitamin E
-260318 screening wt gs plate 10 row F rj rl.txt,C17C18D17D18,B Saccharopine (hydrochloride)
+260318 screening wt gs plate 10 row F rj rl.txt,C17C18D17D18,Saccharopine (hydrochloride)
 250131 screening GS 15 RJ.txt,J7J8K7K8,"Glycogen, Oysters"
 20250515 rl rj plate 2 row E.txt,K1K2L1L2,Nudifloramide
 20250606 rl rj screening plate 3 row D.txt,G19G20H19H20,(Z)-Aconitic acid
@@ -777,4 +777,4 @@ w,A11A12B11B12,D-Glucuronic acid
 20250604 rl rj screening plate 5 row C.txt,E17E18F17F18,Xanthine
 20250507 rl rj screening wt gs plate 4 row D.txt,G1G2H1H2,Pimelic acid
 20250604 rl rj screening plate 5 row A.txt,A1A2B1B2,Uridine
-20250507 rl rj screening wt gs plate 4 row A.txt,A5A6B5B6,A L-Thyroxine (sodium salt pentahydrate)
+20250507 rl rj screening wt gs plate 4 row A.txt,A5A6B5B6,L-Thyroxine (sodium salt pentahydrate)
