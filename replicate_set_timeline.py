@@ -1,4 +1,6 @@
+import copy
 import dataclasses
+import math
 import warnings
 from typing import List
 
@@ -17,6 +19,7 @@ class ReplicateSetTimeline:
     well: str
     replicate_sets: list[ReplicateSet]
     timelines: dict[str, list[float]] = dataclasses.field(default_factory=dict)
+    timeline_r_squared: dict[str, float] = dataclasses.field(default_factory=dict)
     k_m = 0
     k_cat = 0
     fit_result = None
@@ -46,6 +49,40 @@ class ReplicateSetTimeline:
 
         return result.params
 
+    def r_squared_timelines(self):
+        self.bundle()
+
+        # TODO if there are timelines, get R^2 of each timeline to fit
+        # 1 - SS_res / SS_tot
+        # SS_res = sum of (y_i - f_i)^2 where y_i is ith data point and f_i is ith fitted data point
+        # SS_tot = sum of (y_i - mean(y))^2
+        #
+        # f_i = model
+        # residual = objective = data - model
+        # f_i = data - residual = data - (data - model)
+        if len(self.timelines.items()) > 0 and self.fit_result is not None:
+            timelines_data = {k: [x / (path_length * extinction) for x in v] for k, v in self.timelines_denormalized.items()}
+            data = [rs.mean_concentration() for rs in self.replicate_sets]
+            residual_delta = [data[i] - x for i, x in enumerate(self.fit_result.residual)]
+
+            timelines_SS_res = {k: sum([math.pow(x - residual_delta[i], 2) for i, x in enumerate(v)])
+                                for k, v in timelines_data.items()
+                                }
+            timelines_SS_tot = {k: sum([math.pow(x - sum(v)/len(v), 2) for x in v])
+                                for k, v in timelines_data.items()
+                                }
+
+            if 0.0 in timelines_SS_tot.values():
+                print('messed up in well ' + self.well)
+                return dict()
+
+            return {
+                k: 1 - timelines_SS_res[k] / timelines_SS_tot[k] for k in timelines_data.keys()
+            }
+        else:
+            print('no R^2 values found with wells in ' + self.well)
+            return dict()
+
     def plot_data(self):
         data = [rs.mean_concentration() for rs in self.replicate_sets]
         times = [rs.time for rs in self.replicate_sets]
@@ -71,7 +108,7 @@ class ReplicateSetTimeline:
         s0 = max(y) - min(y)
         s_min = min(y)
 
-        ax.text(300, max(y)*.9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
+        ax.text(300, max(y) * .9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
 
         y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
         ax.plot(x, y2, 'g')
@@ -110,8 +147,8 @@ class ReplicateSetTimeline:
         s_min = min(y)
         r_squared = self.r_squared
 
-        ax.text(300, max(y)*.9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
-        ax.text(300, max(y)*.5, f'$R^2={r_squared}$')
+        ax.text(300, max(y) * .9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
+        ax.text(300, max(y) * .5, f'$R^2={r_squared}$')
 
         y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
         ax.plot(x, y2, 'g')
@@ -138,6 +175,8 @@ class ReplicateSetTimeline:
                     timelines[well].append(rs.data_points[well])
                 except KeyError:
                     continue
+
+        self.timelines_denormalized = copy.deepcopy(timelines)
 
         for k, tl in timelines.items():
             min_abs = min(tl)
@@ -185,7 +224,10 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
         # TODO catch errors in fitting
         params = rstl.fit()
         fits[rstl.well] = params
-        r_squareds[rstl.well] = rstl.r_squared
+        r_squared_timelines = rstl.r_squared_timelines()
+        wells = sorted(list(r_squared_timelines))
+        r_squared_timeline_values = [r_squared_timelines[x] for x in wells]
+        r_squareds[rstl.well] = [rstl.r_squared] + r_squared_timeline_values
 
     fits_sorted = sorted(list(fits.keys()))
 
@@ -197,9 +239,9 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
         r_squared = r_squareds[well]
         if filename != '':
             metabolite = metabolite_naming.find_metabolite(filename, well)
-            table.append([metabolite, filename, well, k_m, k_cat, k_cat / k_m, r_squared])
+            table.append([metabolite, filename, well, k_m, k_cat, k_cat / k_m] + r_squared)
         else:
-            table.append([filename, well, k_m, k_cat, k_cat / k_m, r_squared])
+            table.append([filename, well, k_m, k_cat, k_cat / k_m] + r_squared)
 
     return table
 
