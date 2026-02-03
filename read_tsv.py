@@ -61,6 +61,7 @@ def __data_into_replicate_set_timelines(data_lines, single_line=False, filename=
         wg_rstls = []
         for well in wg.keys():
             rstl = ReplicateSetTimeline(well=well, replicate_sets=[])
+            data_lines_parsed = []
             for i, line in enumerate(data_lines[1:]):
                 split = line.split('\t')
                 try:
@@ -72,12 +73,19 @@ def __data_into_replicate_set_timelines(data_lines, single_line=False, filename=
                         print(f"Value error for line {i}: could not parse value '{split[0]}' as time")
                     break
                 data = float_or_overflow(split[wg[well]])
+                data_lines_parsed.append((data, time))
+
+            # find minimum value of well and subtract it from everybody before making rses
+            data_values = [x for x, _ in data_lines_parsed]
+            zero_point = min(data_values)  # or do I want to set it to the last value read??
+            data_lines_normalized = [(x-zero_point, y) for x, y in data_lines_parsed]
+
+            for data, time in data_lines_normalized:
                 rs = ReplicateSet(time=time, data_points={well: data})
                 rstl.replicate_sets.append(rs)
             wg_rstls.append(rstl)
         wg_rstl = wg_rstls[0]
         for rstl in wg_rstls[1:]:
             wg_rstl = wg_rstl.join(rstl)
-        # wg_rstl.normalize()
         rstls.append(wg_rstl)
     return rstls

@@ -93,12 +93,12 @@ mock_data_overflow = [
 
 mock_data_replicate_sets = [
     ReplicateSetTimeline('A1A2B1B2', [
-        ReplicateSet(time=0, data_points={'A1': 0.0, 'A2': 1.736-1.691, 'B1': 2.069-1.691, 'B2': 2.065-1.691}),
-        ReplicateSet(time=12, data_points={'A1': 1.791-1.691, 'A2': 1.836-1.691, 'B1': 2.169-1.691, 'B2': 2.165-1.691})
+        ReplicateSet(time=0, data_points={'A1': 0.0, 'A2': 0.0, 'B1': 0.0, 'B2': 0.0}),
+        ReplicateSet(time=12, data_points={'A1': 1.791-1.691, 'A2': 1.836-1.736, 'B1': 2.169-2.069, 'B2': 2.165-2.065})
     ]),
     ReplicateSetTimeline('A3A4B3B4', [
-        ReplicateSet(time=0, data_points={'A3': 1.787-1.480, 'A4': 1.837-1.480, 'B3': 1.907-1.480, 'B4': 0.0}),
-        ReplicateSet(time=12, data_points={'A3': 1.887-1.480, 'A4': 1.937-1.480, 'B3': 2.007-1.480, 'B4': 1.580-1.480})
+        ReplicateSet(time=0, data_points={'A3': 0.0, 'A4': 0.0, 'B3': 0.0, 'B4': 0.0}),
+        ReplicateSet(time=12, data_points={'A3': 1.887-1.787, 'A4': 1.937-1.837, 'B3': 2.007-1.907, 'B4': 1.580-1.480})
     ])
 ]
 
