@@ -37,11 +37,11 @@ def approx_lambert_w(s0: float, k_m: float, v_max: float, t: int):
 
 
 def _s0(data: List[float]):
-    return max(data) - min(data)
+    return max(data)
 
 
 def objective_leastsq(params: Parameters, t: List[int], data: List[float]):
-    return [objective(params, t[i], data[i] - min(data), _s0(data)) for i in range(len(data))]
+    return [objective(params, t[i], data[i], _s0(data)) for i in range(len(data))]
 
 
 def curve_params():

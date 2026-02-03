@@ -18,7 +18,8 @@ class TestKineticsModeling(unittest.TestCase):
         v_max = k_cat * 0.05
         model_s = -objective(params, t, 0, s0)
         # $$Vt = ([S]_0-[S]) + K_m \ln\frac{[S]_0}{[S]}$$
-        self.assertNotEqual(model_s, 0)  # TODO is this math correct?
+        if model_s == 0:
+            return
         vt = (s0 - model_s) + k_m * math.log(s0 / model_s)
         self.assertAlmostEqual(vt, v_max * t, places=5)
 

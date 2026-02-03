@@ -61,7 +61,7 @@ class ReplicateSetTimeline:
         # residual = objective = data - model
         # f_i = data - residual = data - (data - model)
         if len(self.timelines.items()) > 0 and self.fit_result is not None:
-            timelines_data = {k: [x / (path_length * extinction) for x in v] for k, v in self.timelines_denormalized.items()}
+            timelines_data = {k: [x / (path_length * extinction) for x in v] for k, v in self.timelines.items()}
             data = [rs.mean_concentration() for rs in self.replicate_sets]
             residual_delta = [data[i] - x for i, x in enumerate(self.fit_result.residual)]
 
@@ -105,8 +105,8 @@ class ReplicateSetTimeline:
         k_m = self.k_m
         k_cat = self.k_cat
         v_max = k_cat * e0
-        s0 = max(y) - min(y)
-        s_min = min(y)
+        s0 = max(y)
+        s_min = min(y)  # should always be 0.0
 
         ax.text(300, max(y) * .9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
 
@@ -143,8 +143,8 @@ class ReplicateSetTimeline:
         k_m = self.k_m
         k_cat = self.k_cat
         v_max = k_cat * e0
-        s0 = max(y) - min(y)
-        s_min = min(y)
+        s0 = max(y)
+        s_min = min(y)  # should always be 0
         r_squared = self.r_squared
 
         ax.text(300, max(y) * .9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
@@ -154,13 +154,6 @@ class ReplicateSetTimeline:
         ax.plot(x, y2, 'g')
 
         return fig
-
-    def normalize(self):
-        warnings.warn("Warning: this normalization function is deprecated. It may not do what you want to do")
-        raw_data = [s for rs in self.replicate_sets for _, s in rs.data_points.items()]
-        s0 = min(raw_data)
-        for rs in self.replicate_sets:
-            rs.data_points = {k: s - s0 for k, s in rs.data_points.items()}
 
     def bundle(self):
         if len(self.timelines.items()) > 0:
@@ -175,13 +168,6 @@ class ReplicateSetTimeline:
                     timelines[well].append(rs.data_points[well])
                 except KeyError:
                     continue
-
-        self.timelines_denormalized = copy.deepcopy(timelines)
-
-        for k, tl in timelines.items():
-            min_abs = min(tl)
-            normalized_tl = [x - min_abs for x in tl]
-            timelines[k] = normalized_tl
 
         self.timelines = timelines
 
