@@ -6,6 +6,7 @@ def find_metabolite(filename, well):
         filename2 = filename
     else:
         filename2 = filename + '.txt'
+    # TODO please check this is being read as unicode
     with open('filename-well-compounds.csv') as f:
         metabolites = csv.reader(f)
 
