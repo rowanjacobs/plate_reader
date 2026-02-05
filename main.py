@@ -29,7 +29,10 @@ def process_file(lines, single_line=False, filename=''):
 
 
 def write_output(data_rows, output_file, mode='w'):
-    with open(output_file, mode, newline='') as outfile:
+    with open(output_file, mode, newline='', encoding="utf-8") as outfile:
+        # write a UTF-8 BOM to force Excel to read the output as UTF-8
+        outfile.write('\ufeff')
+
         writer = csv.writer(outfile)
 
         for row in data_rows:

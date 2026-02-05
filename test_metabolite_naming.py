@@ -13,3 +13,8 @@ class TestMetaboliteNaming(unittest.TestCase):
         filename = '20250611 plate 8 ROW G'
         well = 'N15'
         self.assertEqual('N-Methylsarcosine', find_metabolite(filename, well))
+
+    def test_metabolite_naming_unicode(self):
+        filename = '20250411 GS plate 9 row 4 RLRJ'
+        well = 'I17I18J17J18'
+        self.assertEqual('γ-Glu-Phe', find_metabolite(filename, well))
