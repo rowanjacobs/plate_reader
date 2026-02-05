@@ -88,7 +88,9 @@ def main():
 
         files_rows = [replicate_set_timeline.generate_fit_table(files_data[f], f) for f in files_data]
 
-        final_rows = [["metabolite", "filename", "well", "Km", "kcat", "kcat/Km", "R^2"]] + \
+        final_rows = [["metabolite", "filename", "well", "Km 1", "Km 2", "Km 3", "Km 4", "kcat 1", "kcat 2", "kcat 3",
+                       "kcat 4", "kcat/Km 1", "kcat/Km 2", "kcat/Km 3", "kcat/Km 4", "R^2 1", "R^2 2", "R^2 3",
+                       "R^2 4"]] + \
                      [x for xs in files_rows for x in xs]
 
         # TODO also write a file with absorbance

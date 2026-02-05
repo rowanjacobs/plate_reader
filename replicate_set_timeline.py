@@ -2,9 +2,11 @@ import copy
 import dataclasses
 import math
 import warnings
+from statistics import mean
 from typing import List
 
 import numpy
+from lmfit import Model
 
 import metabolite_naming
 from absorbance import path_length, extinction
@@ -18,12 +20,13 @@ import matplotlib.pyplot as plt
 class ReplicateSetTimeline:
     well: str
     replicate_sets: list[ReplicateSet]
+    # TODO it's getting to the point that you want to refactor timelines out as a dataclass or something
     timelines: dict[str, list[float]] = dataclasses.field(default_factory=dict)
     timeline_r_squared: dict[str, float] = dataclasses.field(default_factory=dict)
+    fits: dict[str, dict[str, float]] = dataclasses.field(default_factory=dict)
     k_m = 0
     k_cat = 0
-    fit_result = None
-    r_squared = 0.0
+    fit_results: dict[str, Model] = dataclasses.field(default_factory=dict)
     __has_fit = False
 
     def join(self, rstl):
@@ -33,55 +36,27 @@ class ReplicateSetTimeline:
         return ReplicateSetTimeline(well=self.well + rstl.well, replicate_sets=joined_rs)
 
     def fit(self):
-        if self.__has_fit:
-            return {'k_m': self.k_m, 'k_cat': self.k_cat}
-
-        data = [rs.mean_concentration() for rs in self.replicate_sets]
-        times = [rs.time for rs in self.replicate_sets]
-        result = fit(times, data)
-        # TODO check success status
-        # TODO write tests
-        self.fit_result = result
-        self.k_m = result.params['k_m'].value.item()
-        self.k_cat = result.params['k_cat'].value.item()
-        self.r_squared = 1 - result.residual.var() / numpy.var(data)
-        self.__has_fit = True
-
-        return result.params
-
-    def r_squared_timelines(self):
         self.bundle()
 
-        # TODO if there are timelines, get R^2 of each timeline to fit
-        # 1 - SS_res / SS_tot
-        # SS_res = sum of (y_i - f_i)^2 where y_i is ith data point and f_i is ith fitted data point
-        # SS_tot = sum of (y_i - mean(y))^2
-        #
-        # f_i = model
-        # residual = objective = data - model
-        # f_i = data - residual = data - (data - model)
-        if len(self.timelines.items()) > 0 and self.fit_result is not None:
-            timelines_data = {k: [x / (path_length * extinction) for x in v] for k, v in self.timelines.items()}
-            data = [rs.mean_concentration() for rs in self.replicate_sets]
-            residual_delta = [data[i] - x for i, x in enumerate(self.fit_result.residual)]
+        if self.__has_fit:
+            return self.fits
 
-            timelines_SS_res = {k: sum([math.pow(x - residual_delta[i], 2) for i, x in enumerate(v)])
-                                for k, v in timelines_data.items()
-                                }
-            timelines_SS_tot = {k: sum([math.pow(x - sum(v)/len(v), 2) for x in v])
-                                for k, v in timelines_data.items()
-                                }
+        times = [rs.time for rs in self.replicate_sets]
+        timelines_data = {k: [x / (path_length * extinction) for x in v] for k, v in self.timelines.items()}
+        for well in self.timelines.keys():
+            result = fit(times, timelines_data[well])
+            # TODO check success status
+            # TODO write tests
+            self.fit_results[well] = result
+            self.fits[well] = {'k_m': result.params['k_m'].value.item(), 'k_cat': result.params['k_cat'].value.item()}
+            self.timeline_r_squared[well] = 1 - result.residual.var() / numpy.var(self.timelines[well])
+            # TODO add the other statistics too
+        self.__has_fit = True
 
-            if 0.0 in timelines_SS_tot.values():
-                print('messed up in well ' + self.well)
-                return dict()
+        self.k_m = mean([self.fits[well]['k_m'] for well in self.timelines.keys()])
+        self.k_cat = mean([self.fits[well]['k_cat'] for well in self.timelines.keys()])
 
-            return {
-                k: 1 - timelines_SS_res[k] / timelines_SS_tot[k] for k in timelines_data.keys()
-            }
-        else:
-            print('no R^2 values found with wells in ' + self.well)
-            return dict()
+        return self.fits
 
     def plot_data(self):
         data = [rs.mean_concentration() for rs in self.replicate_sets]
@@ -122,7 +97,7 @@ class ReplicateSetTimeline:
         return times, data
 
     def bundle_plot(self, title_override=None):
-        colors = ['b', 'r', 'm', 'c', 'y', 'g', 'k']
+        colors = ['b', 'r', 'm', 'c', 'y']
         colormap = {}
         fig, ax = plt.subplots()
         ax.set_xlabel('Time (s)')
@@ -138,20 +113,24 @@ class ReplicateSetTimeline:
             colormap[k] = colors[i]
             ax.plot(x, v, '.:' + colors[i])
 
-        y = ys[sorted(ys.keys())[0]]
+        max_y = max([v[0] for _, v in ys.items()])
         self.fit()
-        k_m = self.k_m
-        k_cat = self.k_cat
-        v_max = k_cat * e0
-        s0 = max(y)
-        s_min = min(y)  # should always be 0
-        r_squared = self.r_squared
 
-        ax.text(300, max(y) * .9, f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$')
-        ax.text(300, max(y) * .5, f'$R^2={r_squared}$')
+        fit_colors = iter(['g', "tab:gray", "tab:brown", "tab:orange"])
+        for i, k in enumerate(self.timelines.keys()):
+            k_m = self.fits[k]['k_m']
+            k_cat = self.fits[k]['k_cat']
+            v_max = k_cat * e0
+            s0 = max(ys[k])
+            s_min = min(ys[k])  # should always be 0
+            r_squared = self.timeline_r_squared[k]
 
-        y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
-        ax.plot(x, y2, 'g')
+            color = next(fit_colors)
+            ax.text(300, max_y * (.7 + i * 0.1), f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$', color=color)
+            ax.text(300, max_y * (.3 + i * 0.1), f'$R^2={r_squared}$', color=color)
+
+            y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
+            ax.plot(x, y2, color)
 
         return fig
 
@@ -203,31 +182,41 @@ def group_and_join_replicate_set_timelines(data):
     return result
 
 
+def pad(array):
+    if len(array) >= 4:
+        return array
+
+    if len(array) == 3:
+        return array + ['']
+
+    return pad(array + [''])
+
+
 def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
     fits = {}
     r_squareds = {}
     for rstl in rstls:
         # TODO catch errors in fitting
+        # this is in a format like {'A1': {'k_m': 1E-5, 'k_cat': 2.5}}
         params = rstl.fit()
         fits[rstl.well] = params
-        r_squared_timelines = rstl.r_squared_timelines()
-        wells = sorted(list(r_squared_timelines))
-        r_squared_timeline_values = [r_squared_timelines[x] for x in wells]
-        r_squareds[rstl.well] = [rstl.r_squared] + r_squared_timeline_values
+        wells = sorted(list(rstl.timeline_r_squared))
+        r_squareds[rstl.well] = [rstl.timeline_r_squared[x] for x in wells]
 
     fits_sorted = sorted(list(fits.keys()))
 
     table = []
     for well in fits_sorted:
         params = fits[well]
-        k_m = params['k_m'].value.item()
-        k_cat = params['k_cat'].value.item()
-        r_squared = r_squareds[well]
+        k_m = pad([params[k]['k_m'] for k in sorted(params.keys())])
+        k_cat = pad([params[k]['k_cat'] for k in sorted(params.keys())])
+        k_cat_over_k_m = pad([params[k]['k_cat']/params[k]['k_m'] for k in sorted(params.keys())])
+        r_squared = pad(r_squareds[well])
         if filename != '':
             metabolite = metabolite_naming.find_metabolite(filename, well)
-            table.append([metabolite, filename, well, k_m, k_cat, k_cat / k_m] + r_squared)
+            table.append([metabolite, filename, well] + k_m + k_cat + k_cat_over_k_m + r_squared)
         else:
-            table.append([filename, well, k_m, k_cat, k_cat / k_m] + r_squared)
+            table.append([filename, well] + k_m + k_cat + k_cat_over_k_m + r_squared)
 
     return table
 
