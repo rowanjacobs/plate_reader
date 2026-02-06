@@ -49,7 +49,7 @@ class ReplicateSetTimeline:
             # TODO write tests
             self.fit_results[well] = result
             self.fits[well] = {'k_m': result.params['k_m'].value.item(), 'k_cat': result.params['k_cat'].value.item()}
-            self.timeline_r_squared[well] = 1 - result.residual.var() / numpy.var(self.timelines[well])
+            self.timeline_r_squared[well] = 1 - result.residual.var() / numpy.var(timelines_data[well])
             # TODO add the other statistics too
         self.__has_fit = True
 
