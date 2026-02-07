@@ -46,10 +46,14 @@ class ReplicateSetTimeline:
             # TODO check success status
             # TODO write tests
             self.timelines[well].fit_result = result
-            self.timelines[well].fit = {'k_m': result.params['k_m'].value.item(),
-                                        'k_cat': result.params['k_cat'].value.item()}
-            self.timelines[well].k_m = result.params['k_m'].value.item()
-            self.timelines[well].k_cat = result.params['k_cat'].value.item()
+            k_m = result.params['k_m'].value.item()
+            try:
+                k_cat = result.params['k_cat'].value.item()
+            except AttributeError:
+                k_cat = 1e-100  # that's the k_cat value in fit results that trigger this error
+            self.timelines[well].fit = {'k_m': k_m, 'k_cat': k_cat}
+            self.timelines[well].k_m = k_m
+            self.timelines[well].k_cat = k_cat
             self.timelines[well].r_squared = 1 - result.residual.var() / numpy.var(timelines_data[well])
         self.__has_fit = True
 
@@ -92,13 +96,11 @@ class ReplicateSetTimeline:
 
     def bundle_plot_data(self):
         self.bundle()
-        data = {k: v.concentrations() for k, v in self.timelines.items()}
         times = [rs.time for rs in self.replicate_sets]
-        return times, data
+        return times, {k: tl.concentrations() for k, tl in self.timelines.items() if not tl.reject()}
 
     def bundle_plot(self, title_override=None):
         colors = ['b', 'r', 'm', 'c', 'y']
-        colormap = {}
         fig, ax = plt.subplots()
         ax.set_xlabel('Time (s)')
         ax.set_ylabel('[NADH] (M)')
@@ -109,15 +111,14 @@ class ReplicateSetTimeline:
         ax.set_title(title)
 
         x, ys = self.bundle_plot_data()
-        for i, (k, v) in enumerate(ys.items()):
-            colormap[k] = colors[i]
-            ax.plot(x, v, '.:' + colors[i])
 
         max_y = max([v[0] for _, v in ys.items()])
         self.fit()
 
         fit_colors = iter(['g', "tab:gray", "tab:brown", "tab:orange"])
-        for i, (k, tl) in enumerate(self.timelines.items()):
+        for i, (k, tl) in enumerate([(k, tl) for k, tl in self.timelines.items() if not tl.reject()]):
+            ax.plot(x, tl.concentrations(), '.:' + colors[i])
+
             k_m = tl.k_m
             k_cat = tl.k_cat
             v_max = k_cat * e0
@@ -196,30 +197,32 @@ def pad(array):
 
 def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
     timelines = {}
-    fits = {}
+    # fits = {}
     for rstl in rstls:
-        # TODO catch errors in fitting
         # this is in a format like {'A1': {'k_m': 1E-5, 'k_cat': 2.5}}
-        params = rstl.fit()
-        fits[rstl.well] = params
+        # params = rstl.fit()
+        # fits[rstl.well] = params
+        rstl.fit()
         timelines[rstl.well] = rstl.timelines
-        wells = sorted(list(rstl.timelines.keys()))
 
-    fits_sorted = sorted(list(fits.keys()))
+    well_groups = sorted(list(timelines.keys()))
 
     table = []
-    for well in fits_sorted:
-        params = fits[well]
-        k_m = pad([params[k]['k_m'] for k in sorted(params.keys())])
-        k_cat = pad([params[k]['k_cat'] for k in sorted(params.keys())])
-        k_cat_over_k_m = pad([params[k]['k_cat'] / params[k]['k_m'] for k in sorted(params.keys())])
-        r_squared = pad([timelines[well][k].r_squared for k in sorted(timelines[well].keys())])
+    for well_group in well_groups:
+        tls = timelines[well_group]
+        wells = sorted(tls.keys())
+        k_m = pad([tls[k].k_m_output() for k in wells])
+        k_cat = pad([tls[k].k_cat_output() for k in wells])
+        k_cat_over_k_m = pad([tls[k].k_cat_over_k_m() for k in wells])
+        r_squared = pad([tls[k].r_squared_output() for k in wells])
+
+        notes = '; '.join([f'rejected {tl.well} with R²={tl.r_squared}' for tl in tls.values() if tl.reject()])
         # TODO put notes and rejections here
         if filename != '':
-            metabolite = metabolite_naming.find_metabolite(filename, well)
-            table.append([metabolite, filename, well] + k_m + k_cat + k_cat_over_k_m + r_squared)
+            metabolite = metabolite_naming.find_metabolite(filename, well_group)
+            table.append([metabolite, filename, well_group] + k_m + k_cat + k_cat_over_k_m + r_squared + [notes])
         else:
-            table.append([filename, well] + k_m + k_cat + k_cat_over_k_m + r_squared)
+            table.append([filename, well_group] + k_m + k_cat + k_cat_over_k_m + r_squared + [notes])
 
     return table
 
