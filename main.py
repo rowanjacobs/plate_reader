@@ -65,6 +65,7 @@ def main():
     parser.add_argument('output', type=str, help="The location to write the processed absorbance data")
     parser.add_argument('--single-line', action='store_true',
                         help="Set this flag to disable grouping wells into replicate sets.")
+    # TODO make the following options default
     parser.add_argument('--megamix', action='store_true',
                         help="Set this flag to process *all* input files in input directory")
     parser.add_argument('--plot-data', action='store_true',
@@ -90,21 +91,22 @@ def main():
 
         final_rows = [["metabolite", "filename", "well", "Km 1", "Km 2", "Km 3", "Km 4", "kcat 1", "kcat 2", "kcat 3",
                        "kcat 4", "kcat/Km 1", "kcat/Km 2", "kcat/Km 3", "kcat/Km 4", "R^2 1", "R^2 2", "R^2 3",
-                       "R^2 4"]] + \
+                       "R^2 4", "notes"]] + \
                      [x for xs in files_rows for x in xs]
 
-        # TODO also write a file with absorbance
         write_output(final_rows, join(args.output, 'all_fits.csv'), mode='a')
 
         if args.plot_data:
             for f in input_files:
                 for rstl in files_data[f]:
                     filename_prefix = f.removesuffix('.txt')
+                    # TODO rstl and tl should know metabolite name (rstl will have to know their own filename for this)
                     metabolite = metabolite_naming.find_metabolite(filename_prefix, rstl.well)
                     if metabolite is not None:
                         metabolite = metabolite.replace('/', '-')
                         output_plot(rstl, args.output, unbundle=args.unbundle, title=metabolite + ' ' + rstl.well)
-                    output_plot(rstl, args.output, unbundle=args.unbundle, title=filename_prefix + ' ' + rstl.well)
+                    else:
+                        output_plot(rstl, args.output, unbundle=args.unbundle, title=filename_prefix + ' ' + rstl.well)
 
 
     else:
