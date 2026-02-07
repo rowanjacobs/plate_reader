@@ -4,7 +4,7 @@ This code is part of a project screening a large library of metabolites for pote
 synthetase.
 
 It is a CLI designed to take as input a file output by the Agilent BioTek Synergy Neo2 plate reader and output the $K_m$
-and $V_{max}$ of each reaction that took place.
+and $k_{cat}$ of each reaction that took place.
 
 For more information on the math and the enzymology, see `kinetics_modeling.md`. (If you somehow got here without being
 an enzymologist, you may want to read the Wikipedia article on Michaelis-Menten kinetics first.)
