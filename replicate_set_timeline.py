@@ -112,7 +112,11 @@ class ReplicateSetTimeline:
 
         x, ys = self.bundle_plot_data()
 
-        max_y = max([v[0] for _, v in ys.items()])
+        s0s = [v[0] for _, v in ys.items()]
+        if len(s0s) == 0:
+            return fig
+
+        max_y = max(s0s)
         self.fit()
 
         fit_colors = iter(['g', "tab:gray", "tab:brown", "tab:orange"])
