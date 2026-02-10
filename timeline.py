@@ -51,3 +51,14 @@ class Timeline:
         if self.reject():
             return ''
         return self.r_squared
+
+    def why_reject(self):
+        if not self.reject():
+            return ''
+        if self.r_squared < 0.9:
+            return f'R²={self.r_squared}'
+        if outliers.grubbs_test(self.metabolite_k_ms, self.k_m):
+            return f'Kₘ={self.k_m}'
+        if outliers.grubbs_test(self.metabolite_k_cats, self.k_cat):
+            return f'kcat={self.k_cat}'
+        return ''

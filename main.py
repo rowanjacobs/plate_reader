@@ -91,7 +91,7 @@ def main():
 
         final_rows = [["metabolite", "filename", "well", "Km 1", "Km 2", "Km 3", "Km 4", "kcat 1", "kcat 2", "kcat 3",
                        "kcat 4", "kcat/Km 1", "kcat/Km 2", "kcat/Km 3", "kcat/Km 4", "R^2 1", "R^2 2", "R^2 3",
-                       "R^2 4", "notes"]] + \
+                       "R^2 4", "Km stdev/avg", "kcat stdev/avg", "kcat/Km stdev/avg", "notes"]] + \
                      [x for xs in files_rows for x in xs]
 
         write_output(final_rows, join(args.output, 'all_fits.csv'), mode='a')

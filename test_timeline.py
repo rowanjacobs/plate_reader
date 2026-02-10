@@ -17,6 +17,7 @@ class TestTimeline(unittest.TestCase):
         tl.r_squared = 0.8999999
 
         self.assertTrue(tl.reject())
+        self.assertEqual('R²=0.8999999', tl.why_reject())
 
         tl.r_squared = 0.9
         self.assertFalse(tl.reject())
@@ -30,8 +31,8 @@ class TestTimeline(unittest.TestCase):
         self.assertFalse(tl.reject())
 
         tl.k_m = 1E-7
-
         self.assertTrue(tl.reject())
+        self.assertEqual('Kₘ=1e-07', tl.why_reject())
 
     def test_rejected_k_cat_grubbs_test(self):
         tl = Timeline('A1')
@@ -42,8 +43,8 @@ class TestTimeline(unittest.TestCase):
         self.assertFalse(tl.reject())
 
         tl.k_cat = 100
-
         self.assertTrue(tl.reject())
+        self.assertEqual('kcat=100', tl.why_reject())
 
     def test_k_m_output(self):
         tl = Timeline('A1')

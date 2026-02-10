@@ -13,6 +13,8 @@ from absorbance import path_length, extinction
 from kinetics_modeling import fit, approx_lambert_w, e0
 from replicate_set import ReplicateSet
 
+from statistics import stdev, mean
+
 import matplotlib.pyplot as plt
 
 from timeline import Timeline
@@ -206,6 +208,12 @@ def pad(array):
     return pad(array + [''])
 
 
+def sd_over_avg(data):
+    if len(data) < 2:
+        return ''
+    return stdev(data) / mean(data)
+
+
 def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
     timelines = {}
     # fits = {}
@@ -227,13 +235,22 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
         k_cat_over_k_m = pad([tls[k].k_cat_over_k_m() for k in wells])
         r_squared = pad([tls[k].r_squared_output() for k in wells])
 
-        notes = '; '.join([f'rejected {tl.well} with R²={tl.r_squared}' for tl in tls.values() if tl.reject()])
+        accepted_tls = [tl for tl in tls.values() if not tl.reject()]
+        sd_over_avgs = [
+            sd_over_avg([tl.k_m for tl in accepted_tls]),
+            sd_over_avg([tl.k_cat for tl in accepted_tls]),
+            sd_over_avg([tl.k_cat / tl.k_m for tl in accepted_tls])
+        ]
+
+        notes = '; '.join([f'rejected {tl.well} with {tl.why_reject()}'
+                           for tl in tls.values() if tl.reject()])
         # TODO put notes and rejections here
         if filename != '':
             metabolite = metabolite_naming.find_metabolite(filename, well_group)
-            table.append([metabolite, filename, well_group] + k_m + k_cat + k_cat_over_k_m + r_squared + [notes])
+            table.append(
+                [metabolite, filename, well_group] + k_m + k_cat + k_cat_over_k_m + r_squared + sd_over_avgs + [notes])
         else:
-            table.append([filename, well_group] + k_m + k_cat + k_cat_over_k_m + r_squared + [notes])
+            table.append([filename, well_group] + k_m + k_cat + k_cat_over_k_m + r_squared + sd_over_avgs + [notes])
 
     return table
 
