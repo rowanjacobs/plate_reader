@@ -21,6 +21,30 @@ class TestTimeline(unittest.TestCase):
         tl.r_squared = 0.9
         self.assertFalse(tl.reject())
 
+    def test_rejected_k_m_grubbs_test(self):
+        tl = Timeline('A1')
+        tl.r_squared = 1.0
+        tl.k_m = 1E-5
+        tl.metabolite_k_ms = [1E-5, 1.1E-5, 1.2E-5, 1E-7]
+
+        self.assertFalse(tl.reject())
+
+        tl.k_m = 1E-7
+
+        self.assertTrue(tl.reject())
+
+    def test_rejected_k_cat_grubbs_test(self):
+        tl = Timeline('A1')
+        tl.r_squared = 1.0
+        tl.k_cat = 2.5
+        tl.metabolite_k_cats = [1.5, 2.5, 3.5, 100]
+
+        self.assertFalse(tl.reject())
+
+        tl.k_cat = 100
+
+        self.assertTrue(tl.reject())
+
     def test_k_m_output(self):
         tl = Timeline('A1')
         tl.r_squared = 0.8999999

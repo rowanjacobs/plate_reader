@@ -41,24 +41,31 @@ class ReplicateSetTimeline:
 
         times = [rs.time for rs in self.replicate_sets]
         timelines_data = {k: v.concentrations() for k, v in self.timelines.items()}
+        k_ms = []
+        k_cats = []
         for well in self.timelines.keys():
             result = fit(times, timelines_data[well])
             # TODO check success status
             # TODO write tests
             self.timelines[well].fit_result = result
             k_m = result.params['k_m'].value.item()
+            k_ms.append(k_m)
             try:
                 k_cat = result.params['k_cat'].value.item()
             except AttributeError:
                 k_cat = 1e-100  # that's the k_cat value in fit results that trigger this error
+            k_cats.append(k_cat)
             self.timelines[well].fit = {'k_m': k_m, 'k_cat': k_cat}
             self.timelines[well].k_m = k_m
             self.timelines[well].k_cat = k_cat
             self.timelines[well].r_squared = 1 - result.residual.var() / numpy.var(timelines_data[well])
         self.__has_fit = True
 
-        self.k_m = mean([self.timelines[well].k_m for well in self.timelines.keys()])
-        self.k_cat = mean([self.timelines[well].k_cat for well in self.timelines.keys()])
+        self.k_m = mean(k_ms)
+        self.k_cat = mean(k_cats)
+        for well in self.timelines.keys():
+            self.timelines[well].metabolite_k_ms = k_ms
+            self.timelines[well].metabolite_k_cats = k_cats
 
         return {k: v.fit for k, v in self.timelines.items()}
 

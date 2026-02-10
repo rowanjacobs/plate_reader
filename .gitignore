@@ -1,6 +1,7 @@
 .idea
 venv
 input
+not-input
 output
 .DS_Store
 .hypothesis
