@@ -29,3 +29,25 @@ def grubbs_test(data, datum, alpha=0.05):
     g_critical = ((n - 1) / math.sqrt(n)) * t_critical
 
     return g > g_critical
+
+
+def grubbs_test_iterated(data, datum, alpha=0.05):
+    if len(data) == 3:
+        return grubbs_test(data, datum, alpha)
+
+    # find the outlier
+    outlier_index = -1
+    for i, x in enumerate(data):
+        if grubbs_test(data, x, alpha):
+            outlier_index = i
+            break
+
+    if outlier_index < 0:
+        return False
+
+    if outlier_index == data.index(datum):
+        return True
+
+    del data[outlier_index]
+
+    return grubbs_test_iterated(data, datum, alpha)

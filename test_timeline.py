@@ -46,6 +46,11 @@ class TestTimeline(unittest.TestCase):
         self.assertTrue(tl.reject())
         self.assertEqual('kcat=100', tl.why_reject())
 
+        # test iterated Grubbs' test
+        tl.metabolite_k_cats = [1.5, 2.5, 100, 1000]
+        self.assertTrue(tl.reject())
+        self.assertEqual('kcat=100', tl.why_reject())
+
     def test_k_m_output(self):
         tl = Timeline('A1')
         tl.r_squared = 0.8999999

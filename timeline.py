@@ -29,8 +29,8 @@ class Timeline:
         return list(map(lambda y: y / (path_length * extinction), self.absorbances))
 
     def reject(self):
-        return self.r_squared < 0.9 or outliers.grubbs_test(self.metabolite_k_ms, self.k_m) \
-               or outliers.grubbs_test(self.metabolite_k_cats, self.k_cat)
+        return self.r_squared < 0.9 or outliers.grubbs_test_iterated(self.metabolite_k_ms, self.k_m) \
+               or outliers.grubbs_test_iterated(self.metabolite_k_cats, self.k_cat)
 
     def k_m_output(self):
         if self.reject():
@@ -57,8 +57,8 @@ class Timeline:
             return ''
         if self.r_squared < 0.9:
             return f'R²={self.r_squared}'
-        if outliers.grubbs_test(self.metabolite_k_ms, self.k_m):
+        if outliers.grubbs_test_iterated(self.metabolite_k_ms, self.k_m):
             return f'Kₘ={self.k_m}'
-        if outliers.grubbs_test(self.metabolite_k_cats, self.k_cat):
+        if outliers.grubbs_test_iterated(self.metabolite_k_cats, self.k_cat):
             return f'kcat={self.k_cat}'
         return ''
