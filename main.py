@@ -104,7 +104,7 @@ def main():
                     metabolite = metabolite_naming.find_metabolite(filename_prefix, rstl.well)
                     if metabolite is not None:
                         metabolite = metabolite.replace('/', '-')
-                        output_plot(rstl, args.output, unbundle=args.unbundle, title=metabolite + ' ' + rstl.well)
+                        output_plot(rstl, args.output, unbundle=args.unbundle, title=metabolite)
                     else:
                         output_plot(rstl, args.output, unbundle=args.unbundle, title=filename_prefix + ' ' + rstl.well)
 
