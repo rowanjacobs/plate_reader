@@ -65,12 +65,12 @@ def main():
     parser.add_argument('output', type=str, help="The location to write the processed absorbance data")
     parser.add_argument('--single-line', action='store_true',
                         help="Set this flag to disable grouping wells into replicate sets.")
+    # TODO remove this entirely but make sure old scripts don't break
+    parser.add_argument('--plot-data', action='store_true',
+                        help="(ignore this. your data gets plotted anyway")
     # TODO make the following options default
     parser.add_argument('--megamix', action='store_true',
                         help="Set this flag to process *all* input files in input directory")
-    parser.add_argument('--plot-data', action='store_true',
-                        help="Set this flag to output plots of raw data and fits for each well group, in a separate "
-                             "file in the output directory")
     parser.add_argument('--unbundle', action='store_true',
                         help="Set this flag to display each well separately per plot")
 
@@ -96,17 +96,16 @@ def main():
 
         write_output(final_rows, join(args.output, 'all_fits.csv'), mode='a')
 
-        if args.plot_data:
-            for f in input_files:
-                for rstl in files_data[f]:
-                    filename_prefix = f.removesuffix('.txt')
-                    # TODO rstl and tl should know metabolite name (rstl will have to know their own filename for this)
-                    metabolite = metabolite_naming.find_metabolite(filename_prefix, rstl.well)
-                    if metabolite is not None:
-                        metabolite = metabolite.replace('/', '-')
-                        output_plot(rstl, args.output, unbundle=args.unbundle, title=metabolite)
-                    else:
-                        output_plot(rstl, args.output, unbundle=args.unbundle, title=filename_prefix + ' ' + rstl.well)
+        for f in input_files:
+            for rstl in files_data[f]:
+                filename_prefix = f.removesuffix('.txt')
+                # TODO rstl and tl should know metabolite name (rstl will have to know their own filename for this)
+                metabolite = metabolite_naming.find_metabolite(filename_prefix, rstl.well)
+                if metabolite is not None:
+                    metabolite = metabolite.replace('/', '-')
+                    output_plot(rstl, args.output, unbundle=args.unbundle, title=metabolite)
+                else:
+                    output_plot(rstl, args.output, unbundle=args.unbundle, title=filename_prefix + ' ' + rstl.well)
 
 
     else:
@@ -124,12 +123,11 @@ def main():
             output_file = join(args.output, basename(args.input).replace('.txt', '.csv'))
         write_output(data_rows, output_file)
 
-        if args.plot_data:
-            if isfile(args.output):
-                # TODO get parent dir of output filename
-                raise ValueError(f"Output '{args.output}' is not a directory")
-            for rstl in data:
-                output_plot(rstl, args.output)
+        if isfile(args.output):
+            # TODO get parent dir of output filename
+            raise ValueError(f"Output '{args.output}' is not a directory")
+        for rstl in data:
+            output_plot(rstl, args.output)
 
 
 if __name__ == '__main__':
