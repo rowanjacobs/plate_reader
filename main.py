@@ -65,19 +65,22 @@ def main():
     parser.add_argument('output', type=str, help="The location to write the processed absorbance data")
     parser.add_argument('--single-line', action='store_true',
                         help="Set this flag to disable grouping wells into replicate sets.")
+    parser.add_argument('--single-file', action='store_true',
+                        help="Set this flag to process a single file instead of *all* files in input directory")
+    parser.add_argument('--bundle', action='store_true',
+                        help="Set this flag to average wells before curve fitting")
     # TODO remove this entirely but make sure old scripts don't break
-    parser.add_argument('--plot-data', action='store_true',
-                        help="(ignore this. your data gets plotted anyway")
-    # TODO make the following options default
-    parser.add_argument('--megamix', action='store_true',
-                        help="Set this flag to process *all* input files in input directory")
     parser.add_argument('--unbundle', action='store_true',
-                        help="Set this flag to display each well separately per plot")
+                        help="(deprecated flag, does nothing)")
+    parser.add_argument('--plot-data', action='store_true',
+                        help="(deprecated flag, does nothing)")
+    parser.add_argument('--megamix', action='store_true',
+                        help="(deprecated flag, does nothing)")
 
     # Parse the arguments
     args = parser.parse_args()
 
-    if args.megamix:
+    if not args.single_file:
         if isfile(args.output):
             # TODO get parent dir of output filename
             raise ValueError(f"Output '{args.output}' is not a directory")
@@ -103,9 +106,9 @@ def main():
                 metabolite = metabolite_naming.find_metabolite(filename_prefix, rstl.well)
                 if metabolite is not None:
                     metabolite = metabolite.replace('/', '-')
-                    output_plot(rstl, args.output, unbundle=args.unbundle, title=metabolite)
+                    output_plot(rstl, args.output, unbundle=not args.bundle, title=metabolite)
                 else:
-                    output_plot(rstl, args.output, unbundle=args.unbundle, title=filename_prefix + ' ' + rstl.well)
+                    output_plot(rstl, args.output, unbundle=not args.bundle, title=filename_prefix + ' ' + rstl.well)
 
 
     else:
