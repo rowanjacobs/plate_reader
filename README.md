@@ -13,12 +13,19 @@ an enzymologist, you may want to read the Wikipedia article on Michaelis-Menten 
 
 ### Example
 
-`python main.py 'input.txt' 'output.csv'` will take the data from the file `input.txt` and write data to the
-file `output.csv`.
+`python main.py 'input-dir' 'output-dir'` will take the data from all files `input/foo.txt` and write data to the
+corresponding file `output/foo.csv`.
+
+By default, this program will read all data in an input directory. If you want it to read a single file, use the
+`--single-file` flag. Example: `python main.py input-file.txt output-file.csv --single-file`.
 
 By default, this program assumes that you are running identical trials in groups of 4 adjacent wells, e.g. A1, A2, B1,
-and B2. It will group these and average the concentrations of NADH in each well, discarding any outlier. If you do not
-want this behavior, use the `--single-line` flag.
+and B2. It will group these, then discard the outliers. If you do not
+want this behavior, use the `--single-line` flag, which will consider each well as an independent unrelated trial and
+will not try to identify outliers.
+
+By default, this program will run a fit for each individual well in a trial before determining outliers. If you want it
+to average out the wells and fit to the average, use the `--bundle` flag.
 
 ## Development
 

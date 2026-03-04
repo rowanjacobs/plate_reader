@@ -69,7 +69,7 @@ def main():
                         help="Set this flag to process a single file instead of *all* files in input directory")
     parser.add_argument('--bundle', action='store_true',
                         help="Set this flag to average wells before curve fitting")
-    # TODO remove this entirely but make sure old scripts don't break
+    # TODO see if you can remove this entirely but make sure old scripts don't break
     parser.add_argument('--unbundle', action='store_true',
                         help="(deprecated flag, does nothing)")
     parser.add_argument('--plot-data', action='store_true',
