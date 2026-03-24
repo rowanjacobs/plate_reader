@@ -1,7 +1,6 @@
 import dataclasses
 import statistics
 
-import outliers
 from absorbance import path_length, extinction
 
 
