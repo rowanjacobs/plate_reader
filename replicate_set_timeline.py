@@ -1,22 +1,13 @@
-import copy
 import dataclasses
-import math
-import warnings
-from statistics import mean
+from statistics import stdev, mean
 from typing import List
 
+import matplotlib.pyplot as plt
 import numpy
-from lmfit import Model
 
 import metabolite_naming
-from absorbance import path_length, extinction
 from kinetics_modeling import fit, approx_lambert_w, e0
 from replicate_set import ReplicateSet
-
-from statistics import stdev, mean
-
-import matplotlib.pyplot as plt
-
 from timeline import Timeline
 
 
@@ -41,8 +32,8 @@ class ReplicateSetTimeline:
         if self.__has_fit:
             return {k: v.fit for k, v in self.timelines.items()}
 
-        times = [rs.time for rs in self.replicate_sets]
-        timelines_data = {k: v.concentrations() for k, v in self.timelines.items()}
+        times = self.get_times()
+        timelines_data = self.get_timelines_data()
         k_ms = []
         k_cats = []
         for well in self.timelines.keys():
@@ -71,10 +62,15 @@ class ReplicateSetTimeline:
 
         return {k: v.fit for k, v in self.timelines.items()}
 
+    def get_timelines_data(self):
+        return {k: v.concentrations() for k, v in self.timelines.items()}
+
+    def get_times(self):
+        return [rs.time for rs in self.replicate_sets]
+
     def plot_data(self):
         data = [rs.mean_concentration() for rs in self.replicate_sets]
-        times = [rs.time for rs in self.replicate_sets]
-        return times, data
+        return self.get_times(), data
 
     def plot(self, title_override=None):
         fig, ax = plt.subplots()
@@ -105,11 +101,9 @@ class ReplicateSetTimeline:
 
     def bundle_plot_data(self):
         self.bundle()
-        times = [rs.time for rs in self.replicate_sets]
-        return times, {k: tl.concentrations() for k, tl in self.timelines.items() if not tl.reject()}
+        return (self.get_times()), {k: tl.concentrations() for k, tl in self.timelines.items() if not tl.reject()}
 
     def bundle_plot(self, title_override=None):
-        colors = ['b', 'r', 'm', 'c', 'y']
         fig, ax = plt.subplots()
         ax.set_xlabel('Time (s)')
         ax.set_ylabel('[NADH] (M)')
@@ -128,9 +122,9 @@ class ReplicateSetTimeline:
         max_y = max(s0s)
         self.fit()
 
-        fit_colors = iter(['g', "tab:gray", "tab:brown", "tab:orange"])
+        fit_colors = iter(self.fit_colors())
         for i, (k, tl) in enumerate([(k, tl) for k, tl in self.timelines.items() if not tl.reject()]):
-            ax.plot(x, tl.concentrations(), '.:' + colors[i])
+            ax.plot(x, tl.concentrations(), '.:', color=self.get_colors()[i])
 
             k_m = tl.k_m
             k_cat = tl.k_cat
@@ -140,13 +134,26 @@ class ReplicateSetTimeline:
             r_squared = tl.r_squared
 
             color = next(fit_colors)
-            ax.text(300, max_y * (.7 + i * 0.1), f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$', color=color)
-            ax.text(300, max_y * (.3 + i * 0.1), f'$R^2={r_squared}$', color=color)
+            self.plot_legend(ax, color, i, k_cat, k_m, max_y, r_squared)
 
             y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
             ax.plot(x, y2, color)
 
         return fig
+
+    @staticmethod
+    def plot_legend(ax, color, i, k_cat, k_m, max_y, r_squared):
+        ax.text(300, max_y * (.7 + i * 0.1), f'$K_m={k_m:.3e},\\ k_{{cat}}={k_cat:.3f}$', color=color)
+        ax.text(300, max_y * (.3 + i * 0.1), f'$R^2={r_squared}$', color=color)
+
+    @staticmethod
+    def get_colors():
+        colors = ['b', 'r', 'm', 'c', 'y']
+        return colors
+
+    @staticmethod
+    def fit_colors():
+        return ['g', "tab:gray", "tab:brown", "tab:orange"]
 
     def bundle(self):
         if len(self.timelines.items()) > 0:
@@ -163,6 +170,10 @@ class ReplicateSetTimeline:
                 except KeyError:
                     continue
             timelines[well] = tl
+            if well in ['K21', 'K22', 'L21', 'L22'] or well in ['G19', 'G20', 'H19', 'H20'] \
+                    or well in ['C13', 'C14', 'D13', 'D14'] or well in ['C15', 'C16', 'D15', 'D16']:
+                print(well)
+                print(tl.absorbances)
 
         self.timelines = timelines
 
