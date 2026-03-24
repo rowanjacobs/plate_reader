@@ -170,10 +170,6 @@ class ReplicateSetTimeline:
                 except KeyError:
                     continue
             timelines[well] = tl
-            if well in ['K21', 'K22', 'L21', 'L22'] or well in ['G19', 'G20', 'H19', 'H20'] \
-                    or well in ['C13', 'C14', 'D13', 'D14'] or well in ['C15', 'C16', 'D15', 'D16']:
-                print(well)
-                print(tl.absorbances)
 
         self.timelines = timelines
 
