@@ -15,13 +15,17 @@ class MergedReplicateSetTimeline(ReplicateSetTimeline):
 
     @staticmethod
     def fit_colors():
-        fit_colors = list(matplotlib.colors.TABLEAU_COLORS.keys()) + list(matplotlib.colors.BASE_COLORS.keys())
+        fit_colors = ['xkcd:green', 'xkcd:teal', 'xkcd:black', 'xkcd:forest', 'xkcd:amethyst',
+                      'xkcd:cherry red', 'xkcd:bubblegum pink', 'xkcd:adobe']
+        # fit_colors = list(matplotlib.colors.TABLEAU_COLORS.keys()) + list(matplotlib.colors.BASE_COLORS.keys())
         return fit_colors
 
     @staticmethod
     def get_colors():
-        colors = list(matplotlib.colors.XKCD_COLORS.keys())
-        return colors
+        point_colors = ['xkcd:lime green', 'xkcd:cyan', 'xkcd:black', 'xkcd:jungle green', 'xkcd:deep violet',
+                        'xkcd:faded red', 'xkcd:barbie pink', 'xkcd:mud brown']
+        # colors = list(matplotlib.colors.XKCD_COLORS.keys())
+        return point_colors
 
     @staticmethod
     def plot_legend(ax, color, i, k_cat, k_m, max_y, r_squared):
@@ -43,9 +47,9 @@ def main():
         wtgs_tl.absorbances = array
         merged_rstl.timelines[name] = wtgs_tl
 
-    merged_rstl.fit()
+    print(merged_rstl.fit())
 
-    title = "test " + hit_name + " and wild-type GS on one plot"
+    title = hit_name + " compared to wild-type GS"
     fig = merged_rstl.bundle_plot(title_override=title)
     fig.savefig(join(os.getcwd(), title + '.png'))
     plt.close(fig)
