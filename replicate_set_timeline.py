@@ -41,6 +41,7 @@ class ReplicateSetTimeline:
             # TODO check success status
             # TODO write tests
             self.timelines[well].fit_result = result
+            # TODO breaks on latest lmfit
             k_m = result.params['k_m'].value.item()
             k_ms.append(k_m)
             try:
