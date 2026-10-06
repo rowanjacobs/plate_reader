@@ -111,8 +111,8 @@ def main():
                         metabolite = metabolite.replace('/', '-')
                         output_plot(rstl, args.output, unbundle=not args.bundle, title=metabolite)
                     else:
-                        output_plot(rstl, args.output, unbundle=not args.bundle, title=filename_prefix + ' ' + rstl.well)
-
+                        output_plot(rstl, args.output, unbundle=not args.bundle,
+                                    title=filename_prefix + ' ' + rstl.well)
 
     else:
         lines = read_plate_file(args.input)

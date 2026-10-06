@@ -253,7 +253,6 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
 
         notes = '; '.join([f'rejected {tl.well} with {tl.why_reject()}'
                            for tl in tls.values() if tl.reject()])
-        # TODO put notes and rejections here
         if filename != '':
             metabolite = metabolite_naming.find_metabolite(filename, well_group)
             table.append(

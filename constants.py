@@ -1,6 +1,7 @@
 
-R_SQUARED_CUTOFF = 0.9
-BYPASS_GRUBBS_TEST = False
+R_SQUARED_CUTOFF = 0.95
+BYPASS_GRUBBS_TEST = True
+SUPPRESS_REJECTED_FITS = False
 
 # constants for non-linear curve fitting
 # you probably only want to change these if you're changing the enzyme

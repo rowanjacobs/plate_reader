@@ -34,22 +34,22 @@ class Timeline:
                or outliers.grubbs_test(self.metabolite_k_cats, self.k_cat)
 
     def k_m_output(self):
-        if self.reject():
+        if constants.SUPPRESS_REJECTED_FITS and self.reject():
             return ''
         return self.k_m
 
     def k_cat_output(self):
-        if self.reject():
+        if constants.SUPPRESS_REJECTED_FITS and self.reject():
             return ''
         return self.k_cat
 
     def k_cat_over_k_m(self):
-        if self.reject() or self.k_m == 0.0:
+        if constants.SUPPRESS_REJECTED_FITS and (self.reject() or self.k_m == 0.0):
             return ''
         return self.k_cat / self.k_m
 
     def r_squared_output(self):
-        if self.reject():
+        if constants.SUPPRESS_REJECTED_FITS and self.reject():
             return ''
         return self.r_squared
 
