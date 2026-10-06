@@ -2,16 +2,21 @@ import math
 import statistics
 
 
-def grubbs_test(data, datum, alpha=0.05):
+def grubbs_test(data, datum, alpha=0.05, bypass=False):
     """
     Perform Grubbs' test to detect a single outlier in a dataset.
     Args:
         data (list): The dataset to test.
         datum (float): The datum to test as a potential outlier.
         alpha (float): Significance level (default is 0.05).
+        bypass (bool): if True, skips this function.
     Returns:
-        outlier (bool): Whether datum is an outlier.
+        outlier (bool): Whether datum is an outlier
+        (True indicates the datum should be rejected.)
     """
+    if bypass:
+        return False
+
     n = len(data)
     if n < 3:
         return False  # Grubbs' test requires ≥3 data points to determine an outlier
