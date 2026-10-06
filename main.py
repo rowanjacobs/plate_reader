@@ -64,11 +64,13 @@ def main():
     parser.add_argument('input', nargs='?', type=str, help="The input file to be processed", default="input")
     parser.add_argument('output', type=str, help="The location to write the processed absorbance data")
     parser.add_argument('--single-line', action='store_true',
-                        help="Set this flag to disable grouping wells into replicate sets.")
+                        help="Disable grouping wells into replicate sets.")
     parser.add_argument('--single-file', action='store_true',
-                        help="Set this flag to process a single file instead of *all* files in input directory")
+                        help="Process a single file instead of *all* files in input directory")
     parser.add_argument('--bundle', action='store_true',
-                        help="Set this flag to average wells before curve fitting")
+                        help="Average wells before curve fitting")
+    parser.add_argument('--skip-plots', action='store_true',
+                        help="Only output CSV file")
     # TODO see if you can remove this entirely but make sure old scripts don't break
     parser.add_argument('--unbundle', action='store_true',
                         help="(deprecated flag, does nothing)")
@@ -99,16 +101,17 @@ def main():
 
         write_output(final_rows, join(args.output, 'all_fits.csv'), mode='a')
 
-        for f in input_files:
-            for rstl in files_data[f]:
-                filename_prefix = f.removesuffix('.txt')
-                # TODO rstl and tl should know metabolite name (rstl will have to know their own filename for this)
-                metabolite = metabolite_naming.find_metabolite(filename_prefix, rstl.well)
-                if metabolite is not None:
-                    metabolite = metabolite.replace('/', '-')
-                    output_plot(rstl, args.output, unbundle=not args.bundle, title=metabolite)
-                else:
-                    output_plot(rstl, args.output, unbundle=not args.bundle, title=filename_prefix + ' ' + rstl.well)
+        if not args.skip_plots:
+            for f in input_files:
+                for rstl in files_data[f]:
+                    filename_prefix = f.removesuffix('.txt')
+                    # TODO rstl and tl should know metabolite name (rstl will have to know their own filename for this)
+                    metabolite = metabolite_naming.find_metabolite(filename_prefix, rstl.well)
+                    if metabolite is not None:
+                        metabolite = metabolite.replace('/', '-')
+                        output_plot(rstl, args.output, unbundle=not args.bundle, title=metabolite)
+                    else:
+                        output_plot(rstl, args.output, unbundle=not args.bundle, title=filename_prefix + ' ' + rstl.well)
 
 
     else:
