@@ -1,13 +1,13 @@
 import math
 from typing import List
 
-from lmfit import create_params, Minimizer, report_fit, Parameters
+from lmfit import create_params, Minimizer, Parameters
 from numpy import log, exp
 
 # define objective function: returns the array to be minimized
 from scipy.special import lambertw
 
-e0 = 1.14e-6  # see Benchling for [E]_0
+from constants import ENZYME_CONCENTRATION, STARTING_KCAT_ESTIMATION, STARTING_K_M_ESTIMATION
 
 
 def objective(params: Parameters, t: int, data: float, s0: float):
@@ -45,9 +45,9 @@ def objective_leastsq(params: Parameters, t: List[int], data: List[float]):
 
 
 def curve_params():
-    return create_params(e={'value': e0, 'vary': False},
-                         k_m={'value': 5e-5, 'min': 1e-12, 'max': 1e3},  # 50 µM
-                         k_cat={'value': 1.5, 'min': 1e-100}
+    return create_params(e={'value': ENZYME_CONCENTRATION, 'vary': False},
+                         k_m={'value': STARTING_K_M_ESTIMATION, 'min': 1e-12, 'max': 1e3},
+                         k_cat={'value': STARTING_KCAT_ESTIMATION, 'min': 1e-100}
                          )
 
 

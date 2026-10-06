@@ -1,8 +1,10 @@
 import math
 import statistics
 
+import constants
 
-def grubbs_test(data, datum, alpha=0.05, bypass=False):
+
+def grubbs_test(data, datum, alpha=0.05):
     """
     Perform Grubbs' test to detect a single outlier in a dataset.
     Args:
@@ -14,7 +16,7 @@ def grubbs_test(data, datum, alpha=0.05, bypass=False):
         outlier (bool): Whether datum is an outlier
         (True indicates the datum should be rejected.)
     """
-    if bypass:
+    if constants.BYPASS_GRUBBS_TEST:
         return False
 
     n = len(data)

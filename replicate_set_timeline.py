@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 import numpy
 
 import metabolite_naming
-from kinetics_modeling import fit, approx_lambert_w, e0
+from kinetics_modeling import fit, approx_lambert_w
+from constants import ENZYME_CONCENTRATION
 from replicate_set import ReplicateSet
 from timeline import Timeline
 
@@ -89,7 +90,7 @@ class ReplicateSetTimeline:
         self.fit()
         k_m = self.k_m
         k_cat = self.k_cat
-        v_max = k_cat * e0
+        v_max = k_cat * ENZYME_CONCENTRATION
         s0 = max(y)
         s_min = min(y)  # should always be 0.0
 
@@ -129,7 +130,7 @@ class ReplicateSetTimeline:
 
             k_m = tl.k_m
             k_cat = tl.k_cat
-            v_max = k_cat * e0
+            v_max = k_cat * ENZYME_CONCENTRATION
             s0 = max(ys[k])
             s_min = min(ys[k])  # should always be 0
             r_squared = tl.r_squared

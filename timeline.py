@@ -2,6 +2,7 @@ import dataclasses
 
 from lmfit import Model
 
+import constants
 import outliers
 from absorbance import path_length, extinction
 
@@ -29,7 +30,7 @@ class Timeline:
         return list(map(lambda y: y / (path_length * extinction), self.absorbances))
 
     def reject(self):
-        return self.r_squared < 0.9 or outliers.grubbs_test(self.metabolite_k_ms, self.k_m) \
+        return self.r_squared < constants.R_SQUARED_CUTOFF or outliers.grubbs_test(self.metabolite_k_ms, self.k_m) \
                or outliers.grubbs_test(self.metabolite_k_cats, self.k_cat)
 
     def k_m_output(self):
@@ -55,7 +56,7 @@ class Timeline:
     def why_reject(self):
         if not self.reject():
             return ''
-        if self.r_squared < 0.9:
+        if self.r_squared < constants.R_SQUARED_CUTOFF:
             return f'R²={self.r_squared}'
         if outliers.grubbs_test(self.metabolite_k_ms, self.k_m):
             return f'Kₘ={self.k_m}'
