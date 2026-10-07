@@ -7,6 +7,7 @@ from numpy import log, exp
 # define objective function: returns the array to be minimized
 from scipy.special import lambertw
 
+import constants
 from constants import ENZYME_CONCENTRATION, STARTING_KCAT_ESTIMATION, STARTING_K_M_ESTIMATION
 
 
@@ -25,10 +26,12 @@ def approx_lambert_w(s0: float, k_m: float, v_max: float, t: int):
         log_term = log(s0 / k_m) + (s0 / k_m) - (v_max * t / k_m)
     except RuntimeWarning:
         # TODO proper error handling
-        raise ValueError(f'Got div by 0 for objective function at s0 {s0}, k_m {k_m}, v_max {v_max}, t {t}')
+        raise ValueError(f'Got div by 0 for objective function at s0 {s0}, k_m {k_m}, v_max {v_max}, t {t}'
+                         .format(s0=s0, k_m=k_m, v_max=v_max, t=t))
     if math.isnan(log_term):
         # TODO proper error handling
-        raise ValueError(f'Got NaN value for objective function at s0 {s0}, k_m {k_m}, v_max {v_max}, t {t}')
+        raise ValueError(f'Got NaN value for objective function at s0 {s0}, k_m {k_m}, v_max {v_max}, t {t}'
+                         .format(s0=s0, k_m=k_m, v_max=v_max, t=t))
     if log_term > 600:  # large log_term, use asymptotic formula
         return log_term - log(log_term) + log(log_term) / log_term
     if log_term <= -100:  # small log_term, use linear approximation
@@ -44,15 +47,18 @@ def objective_leastsq(params: Parameters, t: List[int], data: List[float]):
     return [objective(params, t[i], data[i], _s0(data)) for i in range(len(data))]
 
 
-def curve_params():
+def curve_params(s0=1e3):
     return create_params(e={'value': ENZYME_CONCENTRATION, 'vary': False},
-                         k_m={'value': STARTING_K_M_ESTIMATION, 'min': 1e-12, 'max': 1e3},
+                         k_m={'value': STARTING_K_M_ESTIMATION, 'min': 1e-12, 'max': s0},
                          k_cat={'value': STARTING_KCAT_ESTIMATION, 'min': 1e-100}
                          )
 
 
 def fit(t: List[int], data: List[float]):
-    params = curve_params()
+    s0 = _s0(data)
+    if not (constants.CAP_KM_AT_S0 and s0 > 0.0):
+        s0 = 1e3
+    params = curve_params(s0=s0)
     minimizer = Minimizer(objective_leastsq, params, fcn_args=(t, data))
     # Levenberg-Marquardt is the default method
     # but let's specify it explicitly anyway
