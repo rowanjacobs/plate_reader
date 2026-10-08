@@ -8,7 +8,7 @@ from numpy import log, exp
 from scipy.special import lambertw
 
 import constants
-from constants import ENZYME_CONCENTRATION, STARTING_KCAT_ESTIMATION, STARTING_K_M_ESTIMATION
+from constants import ENZYME_CONCENTRATION, STARTING_KCAT_ESTIMATION, STARTING_K_M_ESTIMATION, MIN_K_M
 
 
 def objective(params: Parameters, t: int, data: float, s0: float):
@@ -49,7 +49,7 @@ def objective_leastsq(params: Parameters, t: List[int], data: List[float]):
 
 def curve_params(s0=1e3):
     return create_params(e={'value': ENZYME_CONCENTRATION, 'vary': False},
-                         k_m={'value': STARTING_K_M_ESTIMATION, 'min': 1e-12, 'max': s0},
+                         k_m={'value': STARTING_K_M_ESTIMATION, 'min': MIN_K_M, 'max': s0},
                          k_cat={'value': STARTING_KCAT_ESTIMATION, 'min': 1e-100}
                          )
 
