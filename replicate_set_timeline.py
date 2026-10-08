@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy
 
 import metabolite_naming
-from kinetics_modeling import fit, approx_lambert_w
+from kinetics_modeling import fit, approx_lambert_w, find_steady_state
 from constants import ENZYME_CONCENTRATION
 from replicate_set import ReplicateSet
 from timeline import Timeline
@@ -48,12 +48,17 @@ class ReplicateSetTimeline:
             try:
                 k_cat = result.params['k_cat'].value.item()
             except AttributeError:
-                k_cat = 1e-100  # that's the k_cat value in fit results that trigger this error
+                k_cat = result.params['k_cat'].value
             k_cats.append(k_cat)
             self.timelines[well].fit = {'k_m': k_m, 'k_cat': k_cat}
             self.timelines[well].k_m = k_m
             self.timelines[well].k_cat = k_cat
-            self.timelines[well].r_squared = 1 - result.residual.var() / numpy.var(timelines_data[well])
+            if k_m < 0:
+                self.timelines[well].r_squared = result.rsquared
+                self.timelines[well].linear_slope = result.params['slope'].value
+                self.timelines[well].linear_intercept = result.params['intercept'].value
+            else:
+                self.timelines[well].r_squared = 1 - result.residual.var() / numpy.var(timelines_data[well])
         self.__has_fit = True
 
         self.k_m = mean(k_ms)
@@ -138,8 +143,13 @@ class ReplicateSetTimeline:
             color = next(fit_colors)
             self.plot_legend(ax, color, i, k_cat, k_m, max_y, r_squared)
 
-            y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
-            ax.plot(x, y2, color)
+            if tl.is_linear():
+                y2 = [tl.linear_slope * t + tl.linear_intercept for t in x]
+                y3 = [y for y in y2 if y > 0]
+                ax.plot(x[:len(y3)], y3, color)
+            else:
+                y2 = [s_min + k_m * approx_lambert_w(s0, k_m, v_max, t) for t in x]
+                ax.plot(x, y2, color)
 
         return fig
 
@@ -244,15 +254,18 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
         k_cat_over_k_m = pad([tls[k].k_cat_over_k_m() for k in wells])
         r_squared = pad([tls[k].r_squared_output() for k in wells])
 
-        accepted_tls = [tl for tl in tls.values() if not tl.reject()]
+        accepted_k_cat_tls = [tl for tl in tls.values() if not tl.reject()]
+        accepted_tls = [tl for tl in accepted_k_cat_tls if not tl.k_m < 0]
         sd_over_avgs = [
             sd_over_avg([tl.k_m for tl in accepted_tls]),
-            sd_over_avg([tl.k_cat for tl in accepted_tls]),
+            sd_over_avg([tl.k_cat for tl in accepted_k_cat_tls]),
             sd_over_avg([tl.k_cat / tl.k_m for tl in accepted_tls])
         ]
 
         notes = '; '.join([f'rejected {tl.well} with {tl.why_reject()}'
-                           for tl in tls.values() if tl.reject()])
+                           for tl in tls.values() if tl.reject()]
+                          + [f'using linear kinetics for {tl.well}'
+                             for tl in tls.values() if tl.is_linear()])
         if filename != '':
             metabolite = metabolite_naming.find_metabolite(filename, well_group)
             table.append(

@@ -18,6 +18,8 @@ class Timeline:
     r_squared: float = 1.0
     k_m: float = 0.0
     k_cat: float = 0.0
+    linear_slope: float = 0.0
+    linear_intercept: float = 0.0
 
     def __init__(self, well):
         self.well = well
@@ -29,9 +31,13 @@ class Timeline:
     def concentrations(self):
         return list(map(lambda y: y / (path_length * extinction), self.absorbances))
 
+    def is_linear(self):
+        return self.k_m < 0
+
     def reject(self):
-        return self.r_squared < constants.R_SQUARED_CUTOFF or outliers.grubbs_test(self.metabolite_k_ms, self.k_m) \
-               or outliers.grubbs_test(self.metabolite_k_cats, self.k_cat)
+        return not self.is_linear() and (self.r_squared < constants.R_SQUARED_CUTOFF
+                                         or outliers.grubbs_test(self.metabolite_k_ms, self.k_m)
+                                         or outliers.grubbs_test(self.metabolite_k_cats, self.k_cat))
 
     def k_m_output(self):
         if constants.SUPPRESS_REJECTED_FITS and self.reject():

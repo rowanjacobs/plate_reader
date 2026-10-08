@@ -5,7 +5,7 @@ from unittest import mock
 from hypothesis import given, strategies as st
 from lmfit import create_params
 
-from kinetics_modeling import objective, fit, objective_leastsq, curve_params
+from kinetics_modeling import objective, fit, objective_leastsq, curve_params, find_steady_state
 
 
 class TestKineticsModeling(unittest.TestCase):
@@ -33,6 +33,11 @@ class TestKineticsModeling(unittest.TestCase):
                                             k_m={'value': 5e-5, 'min': 1e-12, 'max': 1e3},
                                             k_cat={'value': 1.5, 'min': 1e-100}
                                             )
+
+    def test_find_steady_state(self):
+        mock_y = [50.0, 40.0, 30.0, 20.0, 10.0, 10.002, 9.991, 10.099, 9.999, 11]
+
+        self.assertEqual(find_steady_state(mock_y), 5)
 
     @mock.patch('kinetics_modeling.Minimizer', autospec=True)
     @mock.patch('kinetics_modeling.curve_params', autospec=True)
