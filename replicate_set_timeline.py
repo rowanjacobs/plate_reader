@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy
 
 import metabolite_naming
-from kinetics_modeling import fit, approx_lambert_w, find_steady_state
+from kinetics_modeling import fit, approx_lambert_w
 from constants import ENZYME_CONCENTRATION
 from replicate_set import ReplicateSet
 from timeline import Timeline

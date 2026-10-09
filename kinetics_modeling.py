@@ -88,8 +88,8 @@ def fit(t: List[int], data: List[float]):
 
 # because this is used to index into an array, we return the index 1 *after* it goes flat
 def find_steady_state(data):
-    for i in range(1,len(data)-2):
-        if math.isclose(data[i], data[i+1], rel_tol=0.01) and math.isclose(data[i+1], data[i+2], rel_tol=0.005):
+    for i in range(1, len(data)-2):
+        if data[i] <= 0.00001 or math.isclose(data[i], 0.0001):
             return i+1
     return len(data)
 

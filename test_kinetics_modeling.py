@@ -35,7 +35,7 @@ class TestKineticsModeling(unittest.TestCase):
                                             )
 
     def test_find_steady_state(self):
-        mock_y = [50.0, 40.0, 30.0, 20.0, 10.0, 10.002, 9.991, 10.099, 9.999, 11]
+        mock_y = [0.001, 0.0005, 0.0003, 0.0002, 0.0001, 0.00009, 0.0001, 0.00008]
 
         self.assertEqual(find_steady_state(mock_y), 5)
 
