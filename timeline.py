@@ -13,19 +13,24 @@ class Timeline:
     fit_result: Model = dataclasses.field(default_factory=Model)
     fit: dict[str, float] = dataclasses.field(default_factory=dict)
     absorbances: list[float] = dataclasses.field(default_factory=list)
+    linear_fit_result: Model = dataclasses.field(default_factory=Model)
     metabolite_k_ms: list[float] = dataclasses.field(default_factory=list)
     metabolite_k_cats: list[float] = dataclasses.field(default_factory=list)
+    metabolite_linear_k_cats: list[float] = dataclasses.field(default_factory=list)
     r_squared: float = 1.0
     k_m: float = 0.0
     k_cat: float = 0.0
+    linear_k_cat = 0.0
     linear_slope: float = 0.0
     linear_intercept: float = 0.0
+    linear_r_squared: float = 0.0
 
     def __init__(self, well):
         self.well = well
         self.absorbances = []
         self.metabolite_k_ms = []
         self.metabolite_k_cats = []
+        self.metabolite_linear_k_cats = []
         self.fit = {}
 
     def concentrations(self):

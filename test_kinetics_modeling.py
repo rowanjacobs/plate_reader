@@ -50,7 +50,7 @@ class TestKineticsModeling(unittest.TestCase):
         t = [0, 5, 10, 15]
         data = [1, 2, 3, 4]
 
-        result = fit(t, data)
+        result, _ = fit(t, data)
         self.assertEqual(1234, result)
 
         mock_params.assert_called_once()

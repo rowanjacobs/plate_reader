@@ -19,6 +19,7 @@ class ReplicateSetTimeline:
     timelines: dict[str, Timeline] = dataclasses.field(default_factory=dict)
     k_m = 0.0
     k_cat = 0.0
+    linear_k_cat = 0.0
     __has_fit = False
 
     def join(self, rstl):
@@ -37,35 +38,37 @@ class ReplicateSetTimeline:
         timelines_data = self.get_timelines_data()
         k_ms = []
         k_cats = []
+        linear_k_cats = []
         for well in self.timelines.keys():
-            result = fit(times, timelines_data[well])
+            result, linear_result = fit(times, timelines_data[well])
             # TODO check success status
             # TODO write tests
             self.timelines[well].fit_result = result
+            self.timelines[well].linear_fit_result = linear_result
             # TODO breaks on latest lmfit
             k_m = result.params['k_m'].value.item()
             k_ms.append(k_m)
-            try:
-                k_cat = result.params['k_cat'].value.item()
-            except AttributeError:
-                k_cat = result.params['k_cat'].value
+            k_cat = result.params['k_cat'].value.item()
             k_cats.append(k_cat)
+            linear_k_cat = linear_result.params['k_cat'].value
+            linear_k_cats.append(linear_k_cat)
             self.timelines[well].fit = {'k_m': k_m, 'k_cat': k_cat}
             self.timelines[well].k_m = k_m
             self.timelines[well].k_cat = k_cat
-            if k_m < 0:
-                self.timelines[well].r_squared = result.rsquared
-                self.timelines[well].linear_slope = result.params['slope'].value
-                self.timelines[well].linear_intercept = result.params['intercept'].value
-            else:
-                self.timelines[well].r_squared = 1 - result.residual.var() / numpy.var(timelines_data[well])
+            self.timelines[well].r_squared = 1 - result.residual.var() / numpy.var(timelines_data[well])
+            self.timelines[well].linear_k_cat = linear_k_cat
+            self.timelines[well].linear_r_squared = linear_result.rsquared
+            self.timelines[well].linear_slope = linear_result.params['slope'].value
+            self.timelines[well].linear_intercept = linear_result.params['intercept'].value
         self.__has_fit = True
 
         self.k_m = mean(k_ms)
         self.k_cat = mean(k_cats)
+        self.linear_k_cat = mean(linear_k_cats)
         for well in self.timelines.keys():
             self.timelines[well].metabolite_k_ms = k_ms
             self.timelines[well].metabolite_k_cats = k_cats
+            self.timelines[well].metabolite_linear_k_cats = linear_k_cats
 
         return {k: v.fit for k, v in self.timelines.items()}
 
@@ -255,12 +258,16 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
         r_squared = pad([tls[k].r_squared_output() for k in wells])
 
         accepted_k_cat_tls = [tl for tl in tls.values() if not tl.reject()]
-        accepted_tls = [tl for tl in accepted_k_cat_tls if not tl.k_m < 0]
+        accepted_tls = [tl for tl in accepted_k_cat_tls]
         sd_over_avgs = [
             sd_over_avg([tl.k_m for tl in accepted_tls]),
             sd_over_avg([tl.k_cat for tl in accepted_k_cat_tls]),
             sd_over_avg([tl.k_cat / tl.k_m for tl in accepted_tls])
         ]
+
+        linear_k_cat = pad([tls[k].linear_k_cat for k in wells])
+        linear_r_squared = pad([tls[k].linear_r_squared for k in wells])
+        linear_sd_k_cat_over_avg = sd_over_avg([tl.linear_k_cat for tl in tls.values()])
 
         notes = '; '.join([f'rejected {tl.well} with {tl.why_reject()}'
                            for tl in tls.values() if tl.reject()]
@@ -269,9 +276,12 @@ def generate_fit_table(rstls: List[ReplicateSetTimeline], filename=''):
         if filename != '':
             metabolite = metabolite_naming.find_metabolite(filename, well_group)
             table.append(
-                [metabolite, filename, well_group] + k_m + k_cat + k_cat_over_k_m + r_squared + sd_over_avgs + [notes])
+                [metabolite, filename, well_group] + k_m + k_cat + k_cat_over_k_m + r_squared + sd_over_avgs +
+                linear_k_cat + linear_r_squared + [linear_sd_k_cat_over_avg] +
+                [notes])
         else:
-            table.append([filename, well_group] + k_m + k_cat + k_cat_over_k_m + r_squared + sd_over_avgs + [notes])
+            table.append([filename, well_group] + k_m + k_cat + k_cat_over_k_m + r_squared + sd_over_avgs +
+                         linear_k_cat + linear_r_squared + [linear_sd_k_cat_over_avg] + [notes])
 
     return table
 

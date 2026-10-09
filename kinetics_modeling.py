@@ -70,20 +70,11 @@ def fit(t: List[int], data: List[float]):
 
     linear_result = linear_fit(t, data)
     linear_kcat = -1 * linear_result.params['slope'].value.item() / ENZYME_CONCENTRATION
-    nonlinear_k_m = result.params['k_m'].value.item()
-    try:
-        nonlinear_kcat = result.params['k_cat'].value.item()
-    except AttributeError:
-        nonlinear_kcat = result.params['k_cat'].value
 
-    if math.isclose(nonlinear_k_m, 1e-8, abs_tol=1e-9) and not math.isclose(linear_kcat, nonlinear_kcat):
-        linear_result.params['k_cat'] = copy.deepcopy(linear_result.params['slope'])
-        linear_result.params['k_cat'].value = linear_kcat
-        linear_result.params['k_m'] = copy.deepcopy(linear_result.params['intercept'])
-        linear_result.params['k_m'].value = numpy.float64(-1)
-        return linear_result
+    linear_result.params['k_cat'] = copy.deepcopy(linear_result.params['slope'])
+    linear_result.params['k_cat'].value = linear_kcat
 
-    return result
+    return result, linear_result
 
 
 # because this is used to index into an array, we return the index 1 *after* it goes flat
