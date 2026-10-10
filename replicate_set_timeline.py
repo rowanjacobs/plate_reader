@@ -48,7 +48,10 @@ class ReplicateSetTimeline:
             # TODO breaks on latest lmfit
             k_m = result.params['k_m'].value.item()
             k_ms.append(k_m)
-            k_cat = result.params['k_cat'].value.item()
+            try:
+                k_cat = result.params['k_cat'].value.item()
+            except AttributeError:
+                k_cat = result.params['k_cat'].value
             k_cats.append(k_cat)
             linear_k_cat = linear_result.params['k_cat'].value
             linear_k_cats.append(linear_k_cat)
